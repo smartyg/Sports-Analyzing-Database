@@ -1,36 +1,47 @@
+#include "config.h"
+
 #include "pathresolver.hpp"
 
+#include <stddef.h>
 #include <cstdlib>
 #include <memory>
+#include <cstring>
 
 #include "pathfilter.hpp"
 #include "resolvedpath.hpp"
+#include "libsad.hpp"
+#include "libsadplugin.hpp"
 
-class PathResolver {
-	PathResolver(path_def *path_definitions)
+	PathResolver::PathResolver(Libsad *lib, path_def *path_definitions)
 	{
+		this->lib = lib;
 		this->path_definitions = PathResolver::parsePathDefinition(path_definitions);
 	}
 
-	ResolvedPath *Resolve(const char *path)
+	PathResolver::~PathResolver(void) {
+		free(this->path_definitions);
+	}
+
+	ResolvedPath *PathResolver::resolve(const char *path)
 	{
 		ResolvedPath *rp = NULL;
 
 		for(PathResolver::PathDefinition *p = this->path_definitions; p->id != PATH_TYPE_LAST; p++) {
 			if (p->full_path != NULL) {
 				if (strcmp(path, p->full_path) == 0) {
-					rp = new ResolvedPath(path, p->id, NULL, p);
+					rp = new ResolvedPath(path, p->id, NULL);
 					break;
-				} else if ((strncmp(path, p->full_path, p->full_path_len) == 0) && p->data_file != DATA_FILE_SUFFIX_NONE && (match_data_file_handler_extention(path + p->full_path_len, p->data_file) == true)) {
-					rp = new ResolvedPath(path, p->id, NULL, p);
+				} else if ((strncmp(path, p->full_path, p->full_path_len) == 0) && p->data_file != LibsadPlugin::PLUGIN_TYPE_DATA_FILE_NONE && (this->lib->getPluginHandler()->isExtentionMatch(path + p->full_path_len, p->data_file) == true)) {
+					rp = new ResolvedPath(path, p->id, NULL);
 					break;
 				} else if ((strncmp(path, p->full_path, p->full_path_len) == 0) && PathFilter::isValid(p->filter)) {
-					PathFilter *filter = new PathFilter(path, path + p->full_path_len, p);
-					PathResolver::PathDefinition *res = p;
+					PathFilter *filter = new PathFilter(path, path + p->full_path_len, p->id, p->filter);
+					PathResolver::PathDefinition *res = NULL;// = p;
 					if (filter->isComplete()) {
-						res = getDefinitionWithParentSingle(p->id)
+						res = getDefinitionWithParentSingle(p->id);
 					}
-					if (rp == NULL) rp = new ResolvedPath(path, id, filter, p);
+					if (res == NULL) rp = new ResolvedPath(path, p->id, filter);
+					else rp = new ResolvedPath(path, res->id, filter);
 					break;
 				}
 			}
@@ -41,21 +52,30 @@ class PathResolver {
 		return NULL;
 	}
 
-	path_type getPathIdWithParentSingle(path_type id) {
+	path_type PathResolver::getPathIdWithParentSingle(path_type id) {
 		PathResolver::PathDefinition *p = getDefinitionWithParentSingle(id);
 		if (p != NULL) return p->id;
 		return PATH_TYPE_NONE;
 	}
 
-	path_type *getPathIdWithParentMulti(path_type id) {
+	path_type *PathResolver::getPathIdWithParentMulti(path_type id) {
 		// TODO
 		return NULL;
 	}
 
-private:
-	PathResolver::PathDefinition *path_definitions;
+	const mode_t PathResolver::getMode(path_type id) {
+		return this->path_definitions[id].mode;
+	}
 
-	PathResolver::PathDefinition *getDefinitionWithParentSingle(path_type id)
+	const bool PathResolver::isDirectory(path_type id) {
+		return S_ISDIR(this->getMode(id));
+	}
+
+	const bool PathResolver::isFile(path_type id) {
+		return S_ISREG(this->getMode(id));
+	}
+
+	PathResolver::PathDefinition *PathResolver::getDefinitionWithParentSingle(path_type id)
 	{
 		for(PathResolver::PathDefinition *p = this->path_definitions; p->id != PATH_TYPE_LAST; p++) {
 			if (p->parent_id == id)
@@ -66,7 +86,7 @@ private:
 		return NULL;
 	}
 
-	static const char *construct_base_path(path_type id, PathResolver::PathDefinition *paths)
+	const char *PathResolver::construct_base_path(path_type id, PathResolver::PathDefinition *paths)
 	{
 		off_t offset = id;
 		PathResolver::PathDefinition *p = paths + offset;
@@ -77,7 +97,7 @@ private:
 		return (const char *)strcpy(dest, p->full_path);
 	}
 
-	static const char *construct_full_name(const char *base, const char *name)
+	const char *PathResolver::construct_full_name(const char *base, const char *name)
 	{
 		bool add_slash = false;
 		if (name == NULL) return NULL;
@@ -102,7 +122,7 @@ private:
 		return (const char *)dest;
 	}
 
-	static PathResolver::PathDefinition parsePathDefinition(path_def *in) {
+	PathResolver::PathDefinition *PathResolver::parsePathDefinition(path_def *in) {
 		off_t alloc_size = (PATH_TYPE_LAST + 1) * sizeof(PathResolver::PathDefinition);
 		PathResolver::PathDefinition *full_paths = (PathResolver::PathDefinition *)malloc(alloc_size);
 		memset(full_paths, 0, alloc_size);
@@ -121,7 +141,7 @@ private:
 			p_out->parent_id = p_in->parent_id;
 			p_out->mode = p_in->mode;
 			p_out->data_file = p_in->data_file;
-			p_out->is_filter = p_in->is_filter;
+			p_out->filter = p_in->filter;
 
 			if (p_out->name == NULL) p_out->name_len = 0;
 			else p_out->name_len = strlen(p_out->name);
@@ -135,4 +155,3 @@ private:
 		((PathResolver::PathDefinition *)(full_paths + PATH_TYPE_LAST))->id = PATH_TYPE_LAST;
 		return full_paths;
 	}
-};

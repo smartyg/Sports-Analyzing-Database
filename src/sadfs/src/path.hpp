@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 
 #include "libsad.hpp"
+#include "libsadplugin.hpp"
 
 typedef enum {
 	PATH_TYPE_NONE = 0,
@@ -26,7 +27,7 @@ typedef struct {
 	const char *name;
 	path_type parent_id;
 	mode_t mode;
-	data_file_suffix data_file;
+	LibsadPlugin::DataFileHandlerType data_file;
 	unsigned int filter:4;
 } path_def;
 

@@ -4,9 +4,17 @@
 #include <sys/stat.h>
 #include <fuse.h>
 
+#include "pathresolver.hpp"
+#include "libsad.hpp"
+
 class Sadfs {
 public:
-	Sadfs(struct sadfs_options *options, fuse_conn_info *conn, fuse_context *fc);
+	typedef struct {
+		bool debug;
+	} sadfsOptions;
+
+	Sadfs(sadfsOptions *options, struct fuse_conn_info *conn, struct fuse_context *fc);
+	~Sadfs(void);
 
 	/** Get file attributes.
 	 *
@@ -437,6 +445,13 @@ public:
 	 * Introduced in version 2.9.1
 	 */
 	int fallocate (const char *, int, off_t, off_t, struct fuse_file_info *);
+
+private:
+	Libsad *lib;
+	PathResolver *pr;
+	struct fuse_context *fuse_context;
+	struct fuse_conn_info *fuse_conn;
+	sadfsOptions *options;
 };
 
 #endif /* _X_SADFS_HPP_ */

@@ -1,20 +1,13 @@
-/*
-  FUSE: Filesystem in Userspace
-  Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
-
-  This program can be distributed under the terms of the GNU GPL.
-  See the file COPYING.
-
-  gcc -Wall hello.c `pkg-config fuse --cflags --libs` -o hello
-*/
-
 #define FUSE_USE_VERSION 26
 
+#include "config.h"
+
+#include <errno.h>
+#include <stdio.h>
 #include <atomic>
 #include <cstdlib>
-
 #include <fuse.h>
-#include <errno.h>
+
 
 #include "sadfs.hpp"
 
@@ -33,16 +26,17 @@ std::atomic<bool> init_in_progress(true);
 
 void *fuse_sadfs_init(struct fuse_conn_info *conn) {
 	struct fuse_context *fc;
-	struct sadfs_options *options;
+	Sadfs::sadfsOptions *options;
 	Sadfs *fs;
 	fc = fuse_get_context();
 	if (fc == NULL) return NULL;
-	options = (struct sadfs_options *)(fc->private_data);
+	options = (Sadfs::sadfsOptions *)(fc->private_data);
 	fc->private_data = NULL;
 
+	if (options->debug) fprintf(stderr, ".init\n");
 	if (options == NULL) return NULL;
 	fs = new Sadfs(options, conn, fc);
-	free(options);
+	//free(options);
 	init_in_progress = false;
 	return (void *)fs;
 }
@@ -191,45 +185,7 @@ int fuse_sadfs_fallocate (const char *path, int i, off_t o1, off_t o2, struct fu
 	EXPAND_RETURN_FUSE_OPERATION(fallocate, path, i, o1, o2, info);
 }
 
-struct fuse_operations sadfs_operations;/* = {
-	.getattr	= fuse_sadfs_getattr,
-	.readlink	= fuse_sadfs_readlink,
-	.mknod		= fuse_sadfs_mknod,
-	.mkdir		= fuse_sadfs_mkdir,
-	.unlink		= fuse_sadfs_unlink,
-	.rmdir		= fuse_sadfs_rmdir,
-	.symlink	= fuse_sadfs_symlink,
-	.rename		= fuse_sadfs_rename,
-	.link		= fuse_sadfs_link,
-	.chmod		= fuse_sadfs_chmod,
-	.chown		= fuse_sadfs_chown,
-	.truncate	= fuse_sadfs_truncate,
-	.open		= fuse_sadfs_open,
-	.read		= fuse_sadfs_read,
-	.write		= fuse_sadfs_write,
-	.statfs		= fuse_sadfs_statfs,
-	.flush		= fuse_sadfs_flush,
-	.release	= fuse_sadfs_release,
-	.fsync		= fuse_sadfs_fsync,
-	.opendir	= fuse_sadfs_opendir,
-	.readdir	= fuse_sadfs_readdir,
-	.releasedir	= fuse_sadfs_releasedir,
-	.fsyncdir	= fuse_sadfs_fsyncdir,
-	.init		= fuse_sadfs_init,
-	.destroy	= fuse_sadfs_destroy,
-	.access		= fuse_sadfs_access,
-	.create		= fuse_sadfs_create,
-	.ftruncate	= fuse_sadfs_ftruncate,
-	.fgetattr	= fuse_sadfs_fgetattr,
-	.lock		= fuse_sadfs_lock,
-	.utimens	= fuse_sadfs_utimens,
-	.ioctl		= fuse_sadfs_ioctl,
-	.poll		= fuse_sadfs_poll,
-	.write_buf	= fuse_sadfs_write_buf,
-	.read_buf	= fuse_sadfs_read_buf,
-	.flock		= fuse_sadfs_flock,
-	.fallocate	= fuse_sadfs_fallocate,
-};*/
+struct fuse_operations sadfs_operations;
 
 int main(int argc, char *argv[])
 {
@@ -271,7 +227,8 @@ int main(int argc, char *argv[])
 	sadfs_operations.flock		= fuse_sadfs_flock;
 	sadfs_operations.fallocate	= fuse_sadfs_fallocate;
 
-
+	Sadfs::sadfsOptions *options = (Sadfs::sadfsOptions *)malloc(sizeof(Sadfs::sadfsOptions));
+	options->debug = true;
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
 	struct fuse_chan *ch;
 	char *mountpoint;
@@ -280,10 +237,11 @@ int main(int argc, char *argv[])
 	if (fuse_parse_cmdline(&args, &mountpoint, NULL, NULL) != -1 && (ch = fuse_mount(mountpoint, &args)) != NULL) {
 		struct fuse *f;
 
-		f = fuse_new(ch, &args, &sadfs_operations, sizeof(sadfs_operations), NULL);
+		f = fuse_new(ch, &args, &sadfs_operations, sizeof(sadfs_operations), options);
 
 		if (f != NULL) {
-			err = fuse_loop_mt(f);
+			//err = fuse_loop_mt(f);
+			err = fuse_loop(f);
 		}
 		fuse_unmount(mountpoint, ch);
 	}
