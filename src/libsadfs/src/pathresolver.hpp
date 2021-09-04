@@ -30,9 +30,6 @@ public:
 	const Libsad::FilterObjectType getTargetObject(path_type id);
 	const Libsad::FilterObjectType getTargetObject(ResolvedPath *);
 
-	static const char *construct_full_name(const char *base, const char *name, const char *ext);
-
-
 private:
 	typedef struct {
 		path_type id;

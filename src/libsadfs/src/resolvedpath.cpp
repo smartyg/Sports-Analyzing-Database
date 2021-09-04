@@ -9,6 +9,7 @@
 #include "pathresolver.hpp"
 #include "pathfilter.hpp"
 #include "path.hpp"
+#include "utils.hpp"
 
 ResolvedPath::ResolvedPath(const char *path, path_type path_id, PathFilter *filter)
 {
@@ -24,7 +25,7 @@ ResolvedPath::ResolvedPath(const char *path, path_type path_id, PathFilter *filt
 ResolvedPath::ResolvedPath(const char *base_path, const char *name, path_type path_id, PathFilter *filter)
 {
 	fprintf(stderr, "new ResolvedPath::%s(%s, %s, %d, %p) at %p\n", __FUNCTION__, base_path, name, path_id, filter, this);
-	this->path = PathResolver::construct_full_name(base_path, name, NULL);
+	this->path = Utils::makeFilePath(base_path, name, NULL);
 	this->path_id = path_id;
 	this->filter = filter;
 
@@ -34,7 +35,7 @@ ResolvedPath::ResolvedPath(const char *base_path, const char *name, path_type pa
 ResolvedPath::ResolvedPath(const char *base_path, const char *name, const char *ext, path_type path_id, PathFilter *filter)
 {
 	fprintf(stderr, "new ResolvedPath::%s(%s, %s, %s, %d, %p) at %p\n", __FUNCTION__, base_path, name, ext, path_id, filter, this);
-	this->path = PathResolver::construct_full_name(base_path, name, ext);
+	this->path = Utils::makeFilePath(base_path, name, ext);
 	this->path_id = path_id;
 	this->filter = filter;
 
