@@ -452,6 +452,8 @@ private:
 	struct fuse_context *fuse_context;
 	struct fuse_conn_info *fuse_conn;
 	sadfsOptions *options;
+
+	const int getPathStat(ResolvedPath *rp, struct stat *st);
 };
 
 #endif /* _X_SADFS_HPP_ */

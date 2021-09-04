@@ -1,7 +1,11 @@
 #ifndef _X_PATHFILTER_HPP_
 #define _X_PATHFILTER_HPP_
 
+class PathFilter;
+
 #include "path.hpp"
+#include "libsad.hpp"
+#include "pathresolver.hpp"
 #include "fuse.h"
 
 class PathFilter {
@@ -15,14 +19,13 @@ public:
 	} BaseFilter;
 
 	PathFilter(const char *path, const char *filter_part, path_type path_id, unsigned int filter_options);
-	const PathFilter::BaseFilter getBaseFilter();
-	const char *getPath();
-	const unsigned int getAvailibleFilters();
-	const path_type getPathType();
-	const bool isComplete();
-	int fillReaddir(void *buf, fuse_fill_dir_t filler);
-	int getFilterResult();
+	const PathFilter::BaseFilter getBaseFilter(void);
+	const char *getPath(void);
+	const unsigned int getAvailibleFilters(void);
+	const path_type getPathType(void);
+	const bool isComplete(void);
 	static const bool isValid(unsigned int filter);
+	int getNextFilters(Libsad *lib, PathResolver *pr, char **filters);
 
 private:
 	BaseFilter base_filter;
@@ -39,6 +42,9 @@ private:
 	const char *path;
 	const char *filter_part;
 	path_type path_id;
+
+	bool applyFilters(void);
+	size_t getNextFilterLabel(const char *, off_t *n);
 };
 
 #endif /* _X_PATHFILTER_HPP_ */
