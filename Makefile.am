@@ -119,6 +119,16 @@ noinst_HEADERS += src/sadfs/src/pathfilter.hpp \
 
 noinst_HEADERS += config.h
 
+bin_PROGRAMS += path_resolver
+path_resolver_LDADD = libsad.la
+path_resolver_LDFLAGS = -Wl,-rpath=$(pkglibdir),--enable-new-dtags
+path_resolver_CPPFLAGS = -Isrc/libsad/include -Isrc/sadfs/src -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @FUSE_CFLAGS@
+path_resolver_SOURCES = test/path_resolver.cpp \
+	src/sadfs/src/path.cpp \
+	src/sadfs/src/pathfilter.cpp \
+	src/sadfs/src/pathresolver.cpp \
+	src/sadfs/src/resolvedpath.cpp
+
 EXTRA_DIST = VERSION @PROGRAM_NAME@.spec
 
 ## Only try to update the ChangeLog file when git is availible to report all the changes.
