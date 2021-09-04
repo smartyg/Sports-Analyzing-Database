@@ -56,6 +56,25 @@ void LibsadPlugin::removePlugin(const char *code, const pluginType type) {
 	return;
 }
 
+int LibsadPlugin::getDataFileExtentions(DataFileHandlerType t, char **buf) {
+	int n = 0;
+	*buf = NULL;
+	for(int i = 0; i < LibsadPlugin::n_data_file_table; i++) {
+		pluginDataFileEntry e = LibsadPlugin::data_file_table[i];
+		if ((t == PLUGIN_TYPE_DATA_FILE_READ && e.data.read_class != NULL) ||
+			(t == PLUGIN_TYPE_DATA_FILE_WRITE && e.data.write_class != NULL) ||
+			(t == PLUGIN_TYPE_DATA_FILE_WAYPOINT && e.data.waypoint_class != NULL) ||
+			(t == PLUGIN_TYPE_DATA_FILE_TABLE && e.data.table_class != NULL)) {
+			n++;
+			*buf = (char *)realloc(*buf, n * sizeof(char *));
+			const char *ptr = (char *)(*buf + n);
+			ptr = e.code;
+		}
+	}
+
+	return n;
+}
+
 bool LibsadPlugin::addDataFileEntry(const char *code, const pluginDetails *details, pluginDataFile *data) {
 	/* TODO */
 	return true;

@@ -98,19 +98,21 @@ public:
 	static pluginDataFile* getEmptyPluginDataFile();
 	static pluginAlgorithm* getEmptyPluginAlgorithm();
 
+	static int getDataFileExtentions(DataFileHandlerType, char **);
+
 private:
 	typedef struct {
 		const char *code;
 		const pluginType type;
-		const pluginDetails *details;
-		pluginDataFile *data;
+		const pluginDetails details;
+		pluginDataFile data;
 	} pluginDataFileEntry;
 
 	typedef struct {
 		const char *code;
 		const pluginType type;
-		const pluginDetails *details;
-		pluginAlgorithm *data;
+		const pluginDetails details;
+		pluginAlgorithm data;
 	} pluginAlgorithmEntry;
 
 	static pluginDataFileEntry *data_file_table;
