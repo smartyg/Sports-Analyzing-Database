@@ -46,3 +46,7 @@ bool Libsad::deleteObject(objectId id) {
 LibsadPlugin *Libsad::getPluginHandler(void) {
 	return this->plugin;
 }
+
+int Libsad::getFilteredList(FilterObjectType o, FilterListType l, FilterInfoType *i, char **entries) {
+	return 0;
+}
