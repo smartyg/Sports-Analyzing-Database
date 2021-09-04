@@ -39,15 +39,8 @@ endif
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libsad.pc
 
-## Define a libtool archive target "libexample-@EXAMPLE_API_VERSION@.la", with
-## @EXAMPLE_API_VERSION@ substituted into the generated Makefile at configure
-## time.
-## The libtool archive file (.la) will be installed into the directory named
-## by the predefined variable $(bindir), along with the actual shared library
-## file (.so).
-lib_LTLIBRARIES = libsad.la
-
-libsad_la_CPPFLAGS = -Isrc/libsad/include -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\"
+lib_LTLIBRARIES = libsad-@LIBRARY_API_VERSION@.la
+libsad_@LIBRARY_API_VERSION@_la_CPPFLAGS = -Isrc/libsad/include -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\"
 
 ## Define the source file list for the "libexample-@EXAMPLE_API_VERSION@.la"
 ## target.  Note that @EXAMPLE_API_VERSION@ is not interpreted by Automake and
@@ -55,15 +48,15 @@ libsad_la_CPPFLAGS = -Isrc/libsad/include -DLOCALEDIR=\"$(localedir)\" -DPKGLIBD
 ## and the variable name derived from that.
 ## Note that it is not necessary to list header files
 ## which are already listed elsewhere in a _HEADERS variable assignment.
-libsad_la_SOURCES = src/libsad/src/libsad.cpp \
+libsad_@LIBRARY_API_VERSION@_la_SOURCES = src/libsad/src/libsad.cpp \
 	src/libsad/src/libsadplugin.cpp
 
-libsad_la_LIBADD = @DL_LIBS@
+libsad_@LIBRARY_API_VERSION@_la_LIBADD = @DL_LIBS@
 
 ## Instruct libtool to include ABI version information in the generated shared
 ## library file (.so).  The library ABI version is defined in configure.ac, so
 ## that all version information is kept in one place.
-libsad_la_LDFLAGS = -version-info @LIBRARY_CURRENT_VERSION@:@LIBRARY_REVISION_VERSION@:@LIBRARY_AGE_VERSION@
+libsad_@LIBRARY_API_VERSION@_la_LDFLAGS = -version-info @LIBRARY_CURRENT_VERSION@:@LIBRARY_REVISION_VERSION@:@LIBRARY_AGE_VERSION@
 
 noinst_HEADERS =
 
@@ -72,14 +65,31 @@ noinst_HEADERS =
 ## filename, in order to avoid the need to define separate file lists for each
 ## installation directory.  This only works if the directory hierarchy in the
 ## source tree matches the hierarchy at the install location, however.
-sad_includedir = $(includedir)
-nobase_sad_include_HEADERS = src/libsad/include/libsad.hpp \
+libsad_@LIBRARY_API_VERSION@_la_includedir = $(includedir)
+nobase_libsad_@LIBRARY_API_VERSION@_la_include_HEADERS = src/libsad/include/libsad.hpp \
 	src/libsad/include/libsadplugin.hpp
+
+lib_LTLIBRARIES += libsadfs-@LIBRARY_API_VERSION@.la
+libsadfs_@LIBRARY_API_VERSION@_la_CPPFLAGS = -Isrc/libsad/include -Isrc/libsadfs/include -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @FUSE_CFLAGS@
+libsadfs_@LIBRARY_API_VERSION@_la_SOURCES = src/libsadfs/src/path.cpp \
+	src/libsadfs/src/pathfilter.cpp \
+	src/libsadfs/src/pathresolver.cpp \
+	src/libsadfs/src/resolvedpath.cpp \
+	src/libsadfs/src/sadfs.cpp
+libsadfs_@LIBRARY_API_VERSION@_la_LIBADD = libsad-@LIBRARY_API_VERSION@.la
+libsadfs_@LIBRARY_API_VERSION@_la_LDFLAGS = -version-info @LIBRARY_CURRENT_VERSION@:@LIBRARY_REVISION_VERSION@:@LIBRARY_AGE_VERSION@
+libsadfs_@LIBRARY_API_VERSION@_la_includedir = $(includedir)
+nobase_libsadfs_@LIBRARY_API_VERSION@_la_include_HEADERS = src/libsadfs/include/libsadfs.hpp
+noinst_HEADERS += src/libsadfs/src/pathfilter.hpp \
+	src/libsadfs/src/path.hpp \
+	src/libsadfs/src/pathresolver.hpp \
+	src/libsadfs/src/resolvedpath.hpp
+
 
 pkglib_LTLIBRARIES = gps.la
 gps_la_CPPFLAGS = -Isrc/libsad/include -DLOCALEDIR=\"$(localedir)\"
 gps_la_LDFLAGS = -module -avoid-version -shared
-gps_la_LIBADD = libsad.la
+gps_la_LIBADD = libsad-@LIBRARY_API_VERSION@.la
 gps_la_SOURCES = src/libsad/plugins/gps/plugin.cpp \
 	src/libsad/plugins/gps/gpsplugin.cpp \
 	src/libsad/plugins/gps/gpsreader.cpp \
@@ -101,33 +111,18 @@ noinst_HEADERS += src/libsad/plugins/gps/gpsplugin.hpp \
 # noinst_HEADERS += libsad/plugins/log/LogDataFilePlugin.hpp
 
 bin_PROGRAMS = sadfs
-sadfs_LDADD = @FUSE_LIBS@ libsad.la
+sadfs_LDADD = @FUSE_LIBS@ libsadfs-@LIBRARY_API_VERSION@.la
 sadfs_LDFLAGS = -Wl,-rpath=$(pkglibdir),--enable-new-dtags
-sadfs_CPPFLAGS = -Isrc/libsad/include -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @FUSE_CFLAGS@
-sadfs_SOURCES = src/sadfs/src/fuse_sadfs.cpp \
-	src/sadfs/src/path.cpp \
-	src/sadfs/src/pathfilter.cpp \
-	src/sadfs/src/pathresolver.cpp \
-	src/sadfs/src/resolvedpath.cpp \
-	src/sadfs/src/sadfs.cpp
-
-noinst_HEADERS += src/sadfs/src/pathfilter.hpp \
-	src/sadfs/src/path.hpp \
-	src/sadfs/src/pathresolver.hpp \
-	src/sadfs/src/resolvedpath.hpp \
-	src/sadfs/src/sadfs.hpp
+sadfs_CPPFLAGS = -Isrc/libsad/include -Isrc/libsadfs/include -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @FUSE_CFLAGS@
+sadfs_SOURCES = src/sadfs/src/fuse_sadfs.cpp
 
 noinst_HEADERS += config.h
 
 bin_PROGRAMS += path_resolver
-path_resolver_LDADD = libsad.la
+path_resolver_LDADD = libsadfs-@LIBRARY_API_VERSION@.la
 path_resolver_LDFLAGS = -Wl,-rpath=$(pkglibdir),--enable-new-dtags
-path_resolver_CPPFLAGS = -Isrc/libsad/include -Isrc/sadfs/src -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @FUSE_CFLAGS@
-path_resolver_SOURCES = test/path_resolver.cpp \
-	src/sadfs/src/path.cpp \
-	src/sadfs/src/pathfilter.cpp \
-	src/sadfs/src/pathresolver.cpp \
-	src/sadfs/src/resolvedpath.cpp
+path_resolver_CPPFLAGS = -Isrc/libsad/include -Isrc/libsadfs/include -Isrc/libsadfs/src -Isrc/libsadfs/src -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @FUSE_CFLAGS@
+path_resolver_SOURCES = test/path_resolver.cpp
 
 EXTRA_DIST = VERSION @PROGRAM_NAME@.spec
 

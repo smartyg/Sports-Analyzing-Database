@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([sad], [0.0.1], [goedhart.martijn@gmail.com])
-AC_CONFIG_SRCDIR([src/sadfs/src/sadfs.cpp])
+AC_CONFIG_SRCDIR([src/sadfs/src/fuse_sadfs.cpp])
 AC_CONFIG_HEADERS([config.h])
 AH_BOTTOM([#include <features.h>])
 
@@ -42,6 +42,7 @@ AX_DEFINE_SUBST([PACKAGE_HOMEPAGE], [http://www.martijn-goedhart.nl/sad/], [pack
 AX_DEFINE_SUBST([LIBRARY_CURRENT_VERSION], [0], [version of this library])
 AX_DEFINE_SUBST([LIBRARY_REVISION_VERSION], [0], [version of this library])
 AX_DEFINE_SUBST([LIBRARY_AGE_VERSION], [0], [version of this library])
+AX_DEFINE_SUBST([LIBRARY_API_VERSION], [0], [version of this library])
 
 # Checks for programs.
 AC_PROG_CXX

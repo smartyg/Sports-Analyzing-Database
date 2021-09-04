@@ -24,7 +24,11 @@ public:
 	const unsigned int getAvailibleFilters(void);
 	const path_type getPathType(void);
 	const bool isComplete(void);
+	//int fillReaddir(void *buf, fuse_fill_dir_t filler);
+	//int getNextFilters(char **filters);
+	//int getFilterResult();
 	static const bool isValid(unsigned int filter);
+	//int getNextFilters(Libsad *lib, char **filters);
 	int getNextFilters(Libsad *lib, PathResolver *pr, char **filters);
 
 private:

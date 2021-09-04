@@ -1,0 +1,10 @@
+src/libsadfs/src/path.cpp
+src/libsadfs/src/pathfilter.cpp
+src/libsadfs/src/pathfilter.hpp
+src/libsadfs/src/path.hpp
+src/libsadfs/src/pathresolver.cpp
+src/libsadfs/src/pathresolver.hpp
+src/libsadfs/src/resolvedpath.cpp
+src/libsadfs/src/resolvedpath.hpp
+src/libsadfs/src/sadfs.cpp
+src/libsadfs/include/libsadfs.hpp

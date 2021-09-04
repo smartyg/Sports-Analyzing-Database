@@ -38,6 +38,8 @@ private:
 		path_type id;
 		const char *name;
 		size_t name_len;
+		//const char *base_path;
+		//size_t base_path_len;
 		const char *full_path;
 		size_t full_path_len;
 		path_type parent_id;
@@ -55,6 +57,7 @@ private:
 	PathResolver::PathDefinition *getPathDefinitionRecord(ResolvedPath *);
 	const char *getFullPath(path_type id);
 	static const char *getFullPath(PathDefinition *full_paths, path_type id);
+	//static const char *construct_base_path(path_type id, PathResolver::PathDefinition *paths);
 	static PathResolver::PathDefinition *parsePathDefinition(path_def *in);
 };
 

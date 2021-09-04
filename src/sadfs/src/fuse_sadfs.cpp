@@ -8,8 +8,7 @@
 #include <cstdlib>
 #include <fuse.h>
 
-
-#include "sadfs.hpp"
+#include "libsadfs.hpp"
 
 #include <vector>
 

@@ -1,6 +1,6 @@
 #include "config.h"
 
-#include "sadfs.hpp"
+#include "libsadfs.hpp"
 
 #include <errno.h>
 #include <sys/stat.h>

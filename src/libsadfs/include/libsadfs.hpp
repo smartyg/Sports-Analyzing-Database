@@ -1,11 +1,14 @@
-#ifndef _X_SADFS_HPP_
-#define _X_SADFS_HPP_
+#ifndef _X_LIBSADFS_HPP_
+#define _X_LIBSADFS_HPP_
 
 #include <sys/stat.h>
 #include <fuse.h>
 
-#include "pathresolver.hpp"
+//#include "pathresolver.hpp"
 #include "libsad.hpp"
+
+class PathResolver;
+class ResolvedPath;
 
 class Sadfs {
 public:
@@ -456,4 +459,4 @@ private:
 	const int getPathStat(ResolvedPath *rp, struct stat *st);
 };
 
-#endif /* _X_SADFS_HPP_ */
+#endif /* _X_LIBSADFS_HPP_ */
