@@ -9,6 +9,7 @@
 
 #include "pathfilter.hpp"
 #include "resolvedpath.hpp"
+#include "utils.hpp"
 #include "libsad.hpp"
 #include "libsadplugin.hpp"
 
@@ -209,74 +210,6 @@ const char *PathResolver::getFullPath (PathDefinition *paths, path_type id) {
 	return p->full_path;
 }
 
-const char *PathResolver::construct_full_name(const char *base, const char *name, const char* ext) {
-	fprintf(stderr, "PathResolver::%s(%s, %s, %s)\n", __FUNCTION__, base, name, ext);
-
-	if (name == NULL) return NULL;
-
-	bool add_starting_slash = false;
-	bool add_slash = false;
-	bool add_dot = false;
-
-	if ((base != NULL) && base[0] != '/') return NULL;
-
-	size_t base_len = (base == NULL) ? 0 : strlen(base);
-	size_t name_len = strlen(name);
-	size_t ext_len = (ext == NULL) ? 0 : strlen(ext);
-	size_t len = base_len + name_len + ext_len + 1; // +1 for \0 byte
-
-	if ((base == NULL) && name[0] != '/') {
-		add_starting_slash = true;
-		len++;
-	}
-	if ((base != NULL) && base[base_len - 1] == '/' && name[0] == '/') {
-		base_len--;
-		len--;
-	}
-	if ((base != NULL) && base[base_len - 1] != '/' && name[0] != '/') {
-		add_slash = true;
-		len++;
-	}
-	if ((ext != NULL) && ext[0] != '.') {
-		add_dot = true;
-		len++;
-	}
-
-	char *dest = (char *)malloc(sizeof(char) * len);
-	char *ptr = dest;
-
-	if (add_starting_slash) {
-		ptr[0] = '/';
-		ptr++;
-	}
-
-	if ((base != NULL)) {
-		strncpy(ptr, base, base_len);
-		ptr += base_len;
-	}
-
-	if (add_slash) {
-		ptr[0] = '/';
-		ptr++;
-	}
-
-	strncpy(ptr, name, name_len);
-	ptr += name_len;
-
-	if (ext != NULL) {
-		if (add_dot) {
-			ptr[0] = '/';
-			ptr++;
-		}
-
-		strncpy(ptr, ext, ext_len);
-		ptr += ext_len;
-	}
-	ptr[0] = '\0';
-
-	return (const char *)dest;
-}
-
 PathResolver::PathDefinition *PathResolver::parsePathDefinition(path_def *in) {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, in);
 
@@ -290,7 +223,7 @@ PathResolver::PathDefinition *PathResolver::parsePathDefinition(path_def *in) {
 		off_t offset = p_in->id;
 		PathResolver::PathDefinition *p_out = full_paths + offset;
 		fprintf(stderr, "%s: record: %p\n", __FUNCTION__, p_out);
-		const char *full_path = PathResolver::construct_full_name(PathResolver::getFullPath (full_paths, p_in->parent_id), p_in->name, NULL);
+		const char *full_path = Utils::makeFilePath(PathResolver::getFullPath (full_paths, p_in->parent_id), p_in->name, NULL);
 
 		p_out->id = p_in->id;
 		p_out->name = p_in->name;
