@@ -1,0 +1,11 @@
+src/libsad/include/libsad.hpp
+src/libsad/include/libsadplugin.hpp
+src/libsad/src/libsad.cpp
+src/libsad/src/libsadplugin.cpp
+src/libsad/plugins/gps/ggsplugin.cpp
+src/libsad/plugins/gps/gpsplugin.hpp
+src/libsad/plugins/gps/gpsreader.cpp
+src/libsad/plugins/gps/gpsreader.hpp
+src/libsad/plugins/gps/gpswriter.cpp
+src/libsad/plugins/gps/gpswriter.hpp
+src/libsad/plugins/gps/plugin.cpp
