@@ -2,6 +2,7 @@
 #define _X_LIBSADPLUGIN_HPP_
 
 #include <stddef.h>
+#include <cstdint>
 
 typedef void (*LocationCallback) (void);
 typedef void (*StatisticsCallback) (void);
@@ -51,14 +52,14 @@ public:
 
 class LibsadPlugin {
 public:
-	typedef enum {
+	typedef enum : uint_fast8_t {
 		PLUGIN_TYPE_NONE = 0,
 		PLUGIN_TYPE_DATA_FILE,
 		PLUGIN_TYPE_ALGORITHM,
 		PLUGIN_TYPE_LAST
 	} pluginType;
 
-	typedef enum {
+	typedef enum : uint_fast8_t{
 		PLUGIN_TYPE_DATA_FILE_NONE = 0x0,
 		PLUGIN_TYPE_DATA_FILE_READ = 0x1,
 		PLUGIN_TYPE_DATA_FILE_WRITE = 0x2,

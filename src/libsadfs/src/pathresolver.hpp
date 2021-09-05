@@ -1,3 +1,7 @@
+#ifndef _X_RESOLVEDPATH_HPP_
+// This is to make sure the header file are loaded in the correct order, first resolvedpath.hpp than this one.
+#include "resolvedpath.hpp"
+#else
 #ifndef _X_PATHRESOLVER_HPP_
 #define _X_PATHRESOLVER_HPP_
 
@@ -5,57 +9,96 @@
 
 class PathResolver;
 
+#include <cstdint>
+
 #include "resolvedpath.hpp"
 #include "path.hpp"
 #include "libsad.hpp"
 #include "libsadplugin.hpp"
 
+#define IS_SET(v, m) (((v) & (m)) == (m))
+
+#define LABEL_FILTER_BY_DATE "by-date"
+#define LABEL_FILTER_BY_TITLE "by-title"
+#define LABEL_FILTER_BY_ACTIVITY "by-activity"
+#define LABEL_FILTER_BY_ID ".by-id"
+
 class PathResolver {
 public:
+	typedef enum : uint_fast8_t {
+		FILTER_NONE = 0x0,
+		FILTER_BY_DATE = 0x1,
+		FILTER_BY_TITLE = 0x2,
+		FILTER_BY_ACTIVITY = 0x4,
+		FILTER_BY_ID = 0x8,
+		FILTER_LAST = 0xff
+	} BaseFilter;
+
 	PathResolver(Libsad *lib, path_def *path_definitions);
 	~PathResolver(void);
-	ResolvedPath *resolve(const char *path);
-	path_type getPathIdWithParentSingle(path_type id);
 
+	ResolvedPath *resolve(const char *);
 	const int getChildEntries(ResolvedPath *, ResolvedPath **);
 
-	const mode_t getMode(path_type id);
+	/* Getters */
+	const mode_t getMode(path_type);
 	const mode_t getMode(ResolvedPath *);
-	const bool isDirectory(path_type id);
-	const bool isDirectory(ResolvedPath *);
-	const bool isFile(path_type id);
-	const bool isFile(ResolvedPath *);
-	const char *getName(path_type id);
+	const char *getName(path_type);
 	const char *getName(ResolvedPath *);
-	const Libsad::FilterObjectType getTargetObject(path_type id);
-	const Libsad::FilterObjectType getTargetObject(ResolvedPath *);
+	const path_type getParent(path_type);
+	const path_type getParent(ResolvedPath *);
+	const Libsad::FilterObjectType getTargetObjectType(path_type);
+	const Libsad::FilterObjectType getTargetObjectType(ResolvedPath *);
+	const LibsadPlugin::DataFileHandlerType getDataFileHandler(path_type);
+	const LibsadPlugin::DataFileHandlerType getDataFileHandler(ResolvedPath *);
+
+	/* Booleans */
+	const bool hasParent(path_type);
+	const bool hasParent(ResolvedPath *);
+	const bool isDirectory(path_type);
+	const bool isDirectory(ResolvedPath *);
+	const bool isFile(path_type);
+	const bool isFile(ResolvedPath *);
+	const bool hasDataFileHandler(path_type);
+	const bool hasDataFileHandler(ResolvedPath *);
+
+	/* Checkers */
+	static const bool isValidPathId(path_type);
 
 private:
 	typedef struct {
-		path_type id;
+		// path_type id (unsigned 8 bits)
+		// path_type parent_id (unsigned 8 bits)
+		// unused (4 bits)
+		// size_t name_len (unsigned 12 bits)
+		// mode_t mode (unsigned 16 bits)
+		// LibsadPlugin::DataFileHandlerType data_file_handler (unsigned 8 bits)
+		// PathResolver::BaseFilter filters (unsigned 8 bits)
+
+		// unused (8 bits)
+		// Libsad::FilterObjectType filter_object (unsigned 8 bits)
+		// size_t full_path_len (unsigned 16 bits)
+
+		uint_fast64_t id:8, parent_id:8, :4, name_len:12, mode:16, data_file_handler:8, filters:8;
+		uint_fast32_t :8, filter_object:8, full_path_len:16;
 		const char *name;
-		size_t name_len;
-		//const char *base_path;
-		//size_t base_path_len;
 		const char *full_path;
-		size_t full_path_len;
-		path_type parent_id;
-		mode_t mode;
-		LibsadPlugin::DataFileHandlerType data_file;
-		unsigned int filter:4;
-		Libsad::FilterObjectType target_object;
 	} PathDefinition;
 
 	Libsad *lib;
 	PathResolver::PathDefinition *path_definitions;
 
-	PathResolver::PathDefinition *getDefinitionWithParentSingle(path_type id);
 	PathResolver::PathDefinition *getPathDefinitionRecord(path_type id);
 	PathResolver::PathDefinition *getPathDefinitionRecord(ResolvedPath *);
 	const char *getFullPath(path_type id);
 	static const char *getFullPath(PathDefinition *full_paths, path_type id);
-	//static const char *construct_base_path(path_type id, PathResolver::PathDefinition *paths);
 	static PathResolver::PathDefinition *parsePathDefinition(path_def *in);
+
+	/* From pathresolver-resolve.cpp */
+	ResolvedPath *resolveInternal(const char *, size_t, path_type, BaseFilter, Libsad::FilterInfoType *);
+	const bool isFromParent(PathDefinition *, path_type);
+
 };
 
 #endif /* _X_PATHRESOLVER_HPP_ */
+#endif

@@ -47,6 +47,10 @@ LibsadPlugin *Libsad::getPluginHandler(void) {
 	return this->plugin;
 }
 
-int Libsad::getFilteredList(FilterObjectType o, FilterListType l, FilterInfoType *i, char **entries) {
+int Libsad::getFilteredList(FilterObjectType o, FilterListType l, const FilterInfoType i, char **entries) {
 	return 0;
+}
+
+uint_fast8_t Libsad::getActivityCodeFromName(const char *name, size_t len) {
+	return 1;
 }

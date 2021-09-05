@@ -2,7 +2,6 @@
 
 #include "path.hpp"
 #include "pathresolver.hpp"
-#include "pathfilter.hpp"
 #include "resolvedpath.hpp"
 #include "libsad.hpp"
 
@@ -18,7 +17,7 @@ int main(int argc, char *argv[])
 	printf("found matching path: %s\n", rp->getPath());
 	printf("path id: %d\n", rp->getPathId());
 	printf("mode: %o\n", pr->getMode(rp));
-	if (rp->hasPathFilter()) {
+	if (rp->hasPathFilterInfo()) {
 		printf("path has a filter.\n");
 	}
 	else printf("path has no filter.\n");

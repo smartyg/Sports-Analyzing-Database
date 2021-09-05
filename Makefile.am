@@ -72,20 +72,22 @@ nobase_libsad_@LIBRARY_API_VERSION@_la_include_HEADERS = src/libsad/include/libs
 lib_LTLIBRARIES += libsadfs-@LIBRARY_API_VERSION@.la
 libsadfs_@LIBRARY_API_VERSION@_la_CPPFLAGS = -Isrc/libsad/include -Isrc/libsadfs/include -DLOCALEDIR=\"$(localedir)\" -DPKGLIBDIR=\"$(pkglibdir)\" @FUSE_CFLAGS@
 libsadfs_@LIBRARY_API_VERSION@_la_SOURCES = src/libsadfs/src/path.cpp \
-	src/libsadfs/src/pathfilter.cpp \
 	src/libsadfs/src/pathresolver.cpp \
+	src/libsadfs/src/pathresolver-getchildentries.cpp \
+	src/libsadfs/src/pathresolver-resolve.cpp \
 	src/libsadfs/src/resolvedpath.cpp \
 	src/libsadfs/src/utils.cpp \
-	src/libsadfs/src/sadfs.cpp
+	src/libsadfs/src/sadfs.cpp \
+	src/libsadfs/src/exceptions.cpp
 libsadfs_@LIBRARY_API_VERSION@_la_LIBADD = libsad-@LIBRARY_API_VERSION@.la
 libsadfs_@LIBRARY_API_VERSION@_la_LDFLAGS = -version-info @LIBRARY_CURRENT_VERSION@:@LIBRARY_REVISION_VERSION@:@LIBRARY_AGE_VERSION@
 libsadfs_@LIBRARY_API_VERSION@_la_includedir = $(includedir)
 nobase_libsadfs_@LIBRARY_API_VERSION@_la_include_HEADERS = src/libsadfs/include/libsadfs.hpp
-noinst_HEADERS += src/libsadfs/src/pathfilter.hpp \
-	src/libsadfs/src/path.hpp \
+noinst_HEADERS += src/libsadfs/src/path.hpp \
 	src/libsadfs/src/pathresolver.hpp \
 	src/libsadfs/src/resolvedpath.hpp \
-	src/libsadfs/src/utils.hpp
+	src/libsadfs/src/utils.hpp \
+	src/libsadfs/src/exceptions.hpp
 
 
 pkglib_LTLIBRARIES = gps.la

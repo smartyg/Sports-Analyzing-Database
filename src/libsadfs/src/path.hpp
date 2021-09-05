@@ -6,7 +6,7 @@
 #include "libsad.hpp"
 #include "libsadplugin.hpp"
 
-typedef enum {
+typedef enum : uint_fast8_t {
 	PATH_TYPE_NONE = 0,
 	PATH_TYPE_DIR_ROOT,
 	PATH_TYPE_FILE_ROUTES_OVERVIEW,
@@ -27,11 +27,11 @@ typedef struct {
 	const char *name;
 	path_type parent_id;
 	mode_t mode;
-	LibsadPlugin::DataFileHandlerType data_file;
-	unsigned int filter:4;
+	LibsadPlugin::DataFileHandlerType data_file_handler;
+	unsigned int filters:8;
+	Libsad::FilterObjectType filter_object;
 } path_def;
 
 extern path_def paths[];
-
 
 #endif /* _X_PATH_H_ */
