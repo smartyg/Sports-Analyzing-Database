@@ -24,15 +24,16 @@ void Logger::Exception(const Loglevel level, const SadExceptions e) {
 }
 
 void Logger::Log(const Loglevel level, const char *filename, const char *function, const int line, const char *format, ...) {
+	va_list ap;
 #ifdef _RELEASE
-	vfprintf (Logger::stream, "%s: ", Logger::levelToString(level));
+	fprintf (Logger::stream, "%s: ", Logger::levelToString(level));
 #else
 	if (filename == NULL && function == NULL) fprintf (Logger::stream, "%s: ", Logger::levelToString(level));
 	else if (filename == NULL) fprintf (Logger::stream, "%s: %s: ", Logger::levelToString(level), function);
 	else if (function == NULL) fprintf (Logger::stream, "%s: %s:%d: ", Logger::levelToString(level), filename, line);
 	else fprintf (Logger::stream, "%s: %s:%d %s: ", Logger::levelToString(level), filename, line, function);
 #endif
-	va_list ap;
+	va_start (ap, format);
 	vfprintf (Logger::stream, format, ap);
 	va_end (ap);
 }

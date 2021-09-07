@@ -7,17 +7,17 @@
 
 #include "exceptions.hpp"
 
-#define CRITICAL(format, ...) (Logger::Log(Logger::CRIT, __FILENAME__, __func__, __LINE__, format, __VA_ARGS__)
-#define ERROR(format, ...) (Logger::Log(Logger::ERR, __FILENAME__, __func__, __LINE__, format, __VA_ARGS__)
-#define WARNING(format, ...) (Logger::Log(Logger::WARNING, __FILENAME__, __func__, __LINE__, format, __VA_ARGS__)
-#define NOTICE(format, ...) (Logger::Log(Logger::NOTICE, __FILENAME__, __func__, __LINE__, format, __VA_ARGS__)
-#define INFO(format, ...) (Logger::Log(Logger::INFO, __FILENAME__, __func__, __LINE__, format, __VA_ARGS__)
+#define CRITICAL(format, ...) (Logger::Log(Logger::CRIT, __FILE__, __func__, __LINE__, format, __VA_ARGS__))
+#define ERROR(format, ...) (Logger::Log(Logger::ERR, __FILE__, __func__, __LINE__, format, __VA_ARGS__))
+#define WARNING(format, ...) (Logger::Log(Logger::WARNING, __FILE__, __func__, __LINE__, format, __VA_ARGS__))
+#define NOTICE(format, ...) (Logger::Log(Logger::NOTICE, __FILE__, __func__, __LINE__, format, __VA_ARGS__))
+#define INFO(format, ...) (Logger::Log(Logger::INFO, __FILE__, __func__, __LINE__, format, __VA_ARGS__))
 
 #ifdef _RELEASE
 #define DEBUG(format, ...) (empty())
-inline const void empty (void) const { return; };
+inline const void empty (void) { return; };
 #else
-#define DEBUG(format, ...) (Logger::Log(Logger::DEBUG, __FILENAME__, __func__, __LINE__, format, __VA_ARGS__)
+#define DEBUG(format, ...) (Logger::Log(Logger::DEBUG, __FILE__, __func__, __LINE__, format, __VA_ARGS__))
 #endif
 
 class Logger {
