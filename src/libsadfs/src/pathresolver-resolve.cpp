@@ -98,7 +98,7 @@ const ResolvedPath *PathResolver::resolveInternal(const char *path, size_t start
 		size_t len;
 
 		// Loop over all the remaining parts of the path, see how much we can match.
-		while ((len = getNextFilterLabel(path, &n)) > 0 || !isFilterComplete(*filter_info)) {
+		while ((len = getNextFilterLabel(path, &n)) > 0 && !isFilterComplete(*filter_info)) {
 			DEBUG("getNextFilterLabel returned: len: %ld; n: %ld\n", len, n);
 			DEBUG("resolving path: %.*s\n", static_cast<int>(len), path + n);
 			if (base_filter == FILTER_NONE) {
