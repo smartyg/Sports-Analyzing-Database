@@ -10,6 +10,7 @@
 #include "resolvedpath.hpp"
 #include "exceptions.hpp"
 #include "libsadplugin.hpp"
+#include "logger.hpp"
 
 #define HAS_SINGLE_FILTER_BIT_SET(m) (((m) == FILTER_BY_DATE) || ((m) == FILTER_BY_ACTIVITY) || ((m) == FILTER_BY_TITLE) || ((m) == FILTER_BY_ID))
 
@@ -22,14 +23,14 @@ inline bool isFilterComplete(const Libsad::FilterInfoType);
 PathResolver::BaseFilter matchBaseFilter(const char *, size_t);
 
 const ResolvedPath *PathResolver::resolve(const char *path) const {
-	fprintf(stderr, "PathResolver::%s(%s)\n", __func__, path);
+	DEBUG("PathResolver::%s(%s)\n", __func__, path);
 	Libsad::FilterInfoType filter_info = {0};
 	return this->resolveInternal(path, 0, PATH_TYPE_DIR_ROOT, FILTER_NONE, &filter_info);
 }
 
 // Look if given record is a child of parent (or if it is the parent itself).
 bool PathResolver::isFromParent(const PathDefinition *p, path_type parent_id) const {
-	fprintf(stderr, "PathResolver::%s(%p, %d)\n", __func__, p, parent_id);
+	DEBUG("PathResolver::%s(%p, %d)\n", __func__, p, parent_id);
 	if (p == NULL) return false;
 
 	for (const PathDefinition *pd = p; pd->id != PATH_TYPE_NONE; pd = const_cast<PathDefinition *>(this->path_definitions) + pd->parent_id) {
@@ -41,7 +42,7 @@ bool PathResolver::isFromParent(const PathDefinition *p, path_type parent_id) co
 }
 
 const ResolvedPath *PathResolver::resolveInternal(const char *path, size_t start_pos, path_type parent_id, BaseFilter base_filter, Libsad::FilterInfoType *filter_info) const {
-	fprintf(stderr, "PathResolver::%s(%s, %ld, %d, %d)\n", __func__, path, start_pos, parent_id, base_filter);
+	DEBUG("PathResolver::%s(%s, %ld, %d, %d)\n", __func__, path, start_pos, parent_id, base_filter);
 	ResolvedPath *rp = NULL;
 
 	// Store a matched filtered path in here.
@@ -54,7 +55,7 @@ const ResolvedPath *PathResolver::resolveInternal(const char *path, size_t start
 	for(const PathResolver::PathDefinition *p = this->path_definitions; p->id != PATH_TYPE_LAST; p++) {
 		// Only check if this type sets a path and if it is (a child of) the parent.
 		if (p->full_path != NULL && this->isFromParent (p, parent_id)) {
-			fprintf(stderr, "PathResolver::%s: check record %ld: name: %s; path: %s; parent_id: %ld; mode %lx; file handler: %ld; filters: %ld; filter object: %ld\n", __func__, p->id, p->name, p->full_path, p->parent_id, p->mode, p->data_file_handler, p->filters, p->filter_object);
+			DEBUG("check record %ld: name: %s; path: %s; parent_id: %ld; mode %lx; file handler: %ld; filters: %ld; filter object: %ld\n", p->id, p->name, p->full_path, p->parent_id, p->mode, p->data_file_handler, p->filters, p->filter_object);
 			if (strcmp(path + start_pos, p->full_path) == 0) {
 				// We have a full match with the path.
 				// Check if this directory has a filter, if so, initialize the filter.
@@ -65,8 +66,8 @@ const ResolvedPath *PathResolver::resolveInternal(const char *path, size_t start
 				base_filter = FILTER_NONE;
 				if (p->filters != FILTER_NONE) {
 					if (HAS_SINGLE_FILTER_BIT_SET(p->filters)) base_filter = static_cast<BaseFilter>(p->filters);
-					rp = new ResolvedPath(path, static_cast<path_type>(p->id), true, base_filter, *filter_info);
-				} else rp = new ResolvedPath(path, static_cast<path_type>(p->id), false, base_filter, *filter_info);
+					rp = new ResolvedPath (path, static_cast<path_type>(p->id), true, base_filter, *filter_info);
+				} else rp = new ResolvedPath (path, static_cast<path_type>(p->id), false, base_filter, *filter_info);
 				// We are done, path is fullly resolved.
 				break;
 			} else if ((strncmp(path + start_pos, p->full_path, p->full_path_len) == 0) &&
@@ -92,6 +93,7 @@ const ResolvedPath *PathResolver::resolveInternal(const char *path, size_t start
 
 	// We did not find a full match, check if we have a partial match.
 	if (match_len > 0 && fpd != NULL) {
+		DEBUG("This is a filter directory path, try to resolve the filter. Longest match: %ld\n", match_len);
 		// If this directory has only 1 filter, already set it.
 		if (HAS_SINGLE_FILTER_BIT_SET(fpd->filters)) base_filter = static_cast<BaseFilter>(fpd->filters);
 
@@ -100,7 +102,8 @@ const ResolvedPath *PathResolver::resolveInternal(const char *path, size_t start
 
 		// Loop over all the remaining parts of the path, see how much we can match.
 		while ((len = getNextFilterLabel(path, &n)) > 0 || !isFilterComplete(*filter_info)) {
-			printf("resolving path: %.*s\n", static_cast<int>(len), path + n);
+			DEBUG("getNextFilterLabel returned: len: %ld; n: %ld\n", len, n);
+			DEBUG("resolving path: %.*s\n", static_cast<int>(len), path + n);
 			if (base_filter == FILTER_NONE) {
 				base_filter = matchBaseFilter(path + n, len);
 
@@ -238,7 +241,7 @@ inline uint_fast32_t pathToInt (const char *path, size_t start) {
 
 
 PathResolver::BaseFilter matchBaseFilter(const char *path, size_t path_len) {
-	fprintf(stderr, "%s(%s, %ld)\n", __func__, path, path_len);
+	DEBUG("%s(%s, %ld)\n", __func__, path, path_len);
 	if ((path_len == strlen(LABEL_FILTER_BY_DATE)) && (strncmp(path, LABEL_FILTER_BY_DATE, path_len) == 0)) return PathResolver::FILTER_BY_DATE;
 	else if ((path_len == strlen(LABEL_FILTER_BY_TITLE)) && (strncmp(path, LABEL_FILTER_BY_TITLE, path_len) == 0)) return PathResolver::FILTER_BY_TITLE;
 	else if ((path_len == strlen(LABEL_FILTER_BY_ACTIVITY)) && (strncmp(path, LABEL_FILTER_BY_ACTIVITY, path_len) == 0)) return PathResolver::FILTER_BY_ACTIVITY;
@@ -247,6 +250,7 @@ PathResolver::BaseFilter matchBaseFilter(const char *path, size_t path_len) {
 }
 
 size_t getNextFilterLabel(const char *path, size_t *n) {
+	DEBUG("%s(%s, %ld)\n", __func__, path, *n);
 	size_t len = strlen(path);
 	while ((path[*n] == '/') && ((*n) < len)) (*n)++;
 	const char *ptr = strchr(path + (*n), '/');

@@ -11,11 +11,12 @@
 #include "resolvedpath.hpp"
 #include "libsadplugin.hpp"
 #include "exceptions.hpp"
+#include "logger.hpp"
 
 using namespace std;
 
 const vector<const ResolvedPath *> *PathResolver::getChildEntries(const ResolvedPath *rp) const {
-	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
+	DEBUG("PathResolver::%s(%p)\n", __FUNCTION__, rp);
 
 	path_type id = rp->getPathId();
 	const char *base_path = rp->getPath();
@@ -91,7 +92,7 @@ const vector<const ResolvedPath *> *PathResolver::getChildEntries(const Resolved
 	for(const PathResolver::PathDefinition *p = this->path_definitions; p->id != PATH_TYPE_LAST; p++) {
 		if (p->parent_id == id && p->name != NULL)
 		{
-			fprintf(stderr, "PathResolver::%s: loop; parse id: %ld\n", __func__, p->id);
+			DEBUG("loop; parse id: %ld\n", p->id);
 
 			// In case the entry is a regular file and has a data file handler attached.
 			if ((S_ISREG(p->mode)) && (p->data_file_handler != LibsadPlugin::PLUGIN_TYPE_DATA_FILE_NONE)) {
@@ -102,17 +103,17 @@ const vector<const ResolvedPath *> *PathResolver::getChildEntries(const Resolved
 
 				// Loop over the extensions and make create a ResolvedPath entry for each.
 				for (const char *e : *extentions) {
-					fprintf(stderr, "PathResolver::%s: store entry: path: %s; file: %s\n", __FUNCTION__, base_path, p->name);
+					DEBUG("store entry: path: %s; file: %s\n", __FUNCTION__, base_path, p->name);
 					const ResolvedPath *rp_tmp = new ResolvedPath (base_path, p->name, e, static_cast<path_type>(p->id));
 					// If the constructed ResolvedPath is successfully created, store it.
 					if (rp_tmp != NULL) children->push_back(rp_tmp);
 				}
 				delete extentions;
 			} else { // In the other cases, life is simple.
-				fprintf(stderr, "PathResolver::%s: store entry: path: %s; file: %s\n", __func__, base_path, p->name);
+				DEBUG("store entry: path: %s; file: %s\n", __func__, base_path, p->name);
 				// Create a ResolvedPath entry.
 				const ResolvedPath *rp_tmp = new ResolvedPath(base_path, p->name, static_cast<path_type>(p->id));
-				fprintf(stderr, "PathResolver::%s 2\n", __func__);
+
 				// If the constructed ResolvedPath is successfully created, store it.
 				if (rp_tmp != NULL) children->push_back(rp_tmp);
 			}

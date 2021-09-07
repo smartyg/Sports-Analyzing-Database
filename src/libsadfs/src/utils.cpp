@@ -6,8 +6,10 @@
 #include <cstring>
 #include <memory>
 
+#include "logger.hpp"
+
 const char *Utils::makeFilePath(const char *base, const char *name, const char* ext) {
-	fprintf(stderr, "Utils::%s(%s, %s, %s)\n", __FUNCTION__, base, name, ext);
+	DEBUG("Utils::%s(%s, %s, %s)\n", __FUNCTION__, base, name, ext);
 
 	if (name == NULL) return NULL;
 
