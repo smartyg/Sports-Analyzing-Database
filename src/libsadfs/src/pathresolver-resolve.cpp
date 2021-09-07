@@ -59,9 +59,6 @@ const ResolvedPath *PathResolver::resolveInternal(const char *path, size_t start
 			if (strcmp(path + start_pos, p->full_path) == 0) {
 				// We have a full match with the path.
 				// Check if this directory has a filter, if so, initialize the filter.
-				//Libsad::FilterInfoType filter_info;
-				//BaseFilter base_filter = FILTER_NONE;
-				//filter_info
 				/* TODO: we need to save the filtered result as we now encoutered a new filter dir. */
 				base_filter = FILTER_NONE;
 				if (p->filters != FILTER_NONE) {
