@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <cstring>
+#include <vector>
 #include <fuse.h>
 
 #include "pathresolver.hpp"
@@ -20,6 +21,8 @@
 #define VERSION_SUB 1
 
 #define VERSION_TEXT #VERSION_MAJOR ## . ## #VERSION_MINOR ## . ## #VERSION_SUB
+
+using namespace std;
 
 Sadfs::Sadfs (sadfsOptions *o, struct fuse_conn_info *conn, struct fuse_context *fc)
 {
@@ -273,12 +276,10 @@ int Sadfs::readdir (const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 	filler (buf, ".", NULL, 0);
 	filler (buf, "..", NULL, 0);
 
-	ResolvedPath *children = NULL;
-	size_t n_children = this->pr->getChildEntries(rp, &children);
+	const vector<const ResolvedPath *> *children = this->pr->getChildEntries(rp);
 
-	for (size_t i = 0; i < n_children; i++) {
-		const ResolvedPath *child = reinterpret_cast<const ResolvedPath *>(*(reinterpret_cast<uintptr_t *>(children + i)));
-		fprintf(stderr, "Sadfs::%s: record %ld (%p): %s\n", __func__, i, child, child->getFilename ());
+	for (const ResolvedPath *child : *children) {
+		fprintf(stderr, "Sadfs::%s: record (%p): %s\n", __func__, child, child->getFilename ());
 		struct stat *st = static_cast<struct stat *>(malloc (sizeof(struct stat)));
 		memset(st, 0, sizeof (struct stat));
 		this->getPathStat (child, st);
@@ -288,7 +289,7 @@ int Sadfs::readdir (const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 	}
 
 	delete rp;
-	if (children != NULL) free(children);
+	delete children;
 	return 0;
 }
 

@@ -3,6 +3,9 @@
 
 #include <stddef.h>
 #include <cstdint>
+#include <vector>
+
+using namespace std;
 
 typedef void (*LocationCallback) (void);
 typedef void (*StatisticsCallback) (void);
@@ -75,8 +78,8 @@ public:
 		const char *name;
 		const char *author;
 		const char *license;
-		unsigned int major_version:8;
-		unsigned int minor_version:8;
+		uint_least8_t major_version:8;
+		uint_least8_t minor_version:8;
 	} pluginDetails;
 
 	typedef struct {
@@ -99,34 +102,32 @@ public:
 	static void registerPlugin (const char *, const pluginType, const pluginDetails *, void *);
 	static void removePlugin (const char *, const pluginType);
 
-	static int getDataFileExtentions (const DataFileHandlerType, char **);
+	static const vector<const char *> *getDataFileExtentions(DataFileHandlerType t);
 
 private:
 	typedef struct {
 		const char *code;
-		const pluginType type;
-		const pluginDetails details;
+		DataFileHandlerType handlers;
+		pluginDetails details;
 		pluginDataFile data;
 	} pluginDataFileEntry;
 
 	typedef struct {
 		const char *code;
-		const pluginType type;
-		const pluginDetails details;
+		//const pluginType type;
+		pluginDetails details;
 		pluginAlgorithm data;
 	} pluginAlgorithmEntry;
 
-	static pluginDataFileEntry *data_file_table;
-	static pluginAlgorithmEntry *algorithm_table;
-	static unsigned int n_data_file_table;
-	static unsigned int n_algorithm_table;
+	static vector<pluginDataFileEntry> *data_file_table;
+	static vector<pluginAlgorithmEntry> *algorithm_table;
 	static int instance_counter;
 
 	static void loadPlugins (void);
 	static int loadPluginFilter (const struct dirent *);
-	static bool addDataFileEntry (const char *, const pluginDetails *, pluginDataFile *);
+	static bool addDataFileEntry (const char *, const pluginDetails *, const pluginDataFile *);
 	static bool removeDataFileEntry (const char *);
-	static bool addAlgorithmEntry (const char *, const pluginDetails *, pluginAlgorithm *);
+	static bool addAlgorithmEntry (const char *, const pluginDetails *, const pluginAlgorithm *);
 	static bool removeAlgorithmEntry (const char *);
 };
 

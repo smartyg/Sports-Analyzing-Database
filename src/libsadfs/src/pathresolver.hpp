@@ -10,6 +10,7 @@
 class PathResolver;
 
 #include <cstdint>
+#include <vector>
 
 #include "resolvedpath.hpp"
 #include "path.hpp"
@@ -38,7 +39,7 @@ public:
 	~PathResolver(void);
 
 	const ResolvedPath *resolve(const char *) const;
-	size_t getChildEntries(const ResolvedPath *, ResolvedPath **) const;
+	const vector<const ResolvedPath *> *getChildEntries(const ResolvedPath *rp) const;
 
 	/* Getters */
 	mode_t getMode(path_type) const;

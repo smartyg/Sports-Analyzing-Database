@@ -42,16 +42,13 @@ int main(int argc, char *argv[])
 
 
 	if (pr->isDirectory(rp)) {
-		ResolvedPath *entries = NULL;
-		int n_entries = pr->getChildEntries(rp, &entries);
+		const vector<const ResolvedPath *> *entries = pr->getChildEntries(rp);
 
 		printf("child entries of path: %s\n", argv[1]);
-		printf("found %d child entries\n", n_entries);
+		printf("found %ld child entries\n", entries->size ());
 
-		for (int i = 0; i < n_entries; i++) {
-			const ResolvedPath *entry = reinterpret_cast<const ResolvedPath *>(*(reinterpret_cast<uintptr_t *>(entries + i)));
-
-			printf("----- entry %d -----\n", (i + 1));
+		for (const ResolvedPath *entry : *entries) {
+			printf("----- entry -----\n");
 			printf("matching path: %s\n", entry->getPath());
 			printf("path id: %d\n", entry->getPathId());
 			printf("mode: %o\n", pr->getMode(entry));

@@ -4,13 +4,19 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <vector>
 #include <dirent.h>
 #include <dlfcn.h>
 
-LibsadPlugin::pluginDataFileEntry *LibsadPlugin::data_file_table = NULL;
-LibsadPlugin::pluginAlgorithmEntry *LibsadPlugin::algorithm_table = NULL;
-unsigned int LibsadPlugin::n_data_file_table = 0;
-unsigned int LibsadPlugin::n_algorithm_table = 0;
+#ifndef IS_SET
+#define IS_SET(v, m) (((v) & (m)) == (m))
+#endif
+
+using namespace std;
+
+vector<LibsadPlugin::pluginDataFileEntry> *LibsadPlugin::data_file_table = new vector<LibsadPlugin::pluginDataFileEntry>;
+vector<LibsadPlugin::pluginAlgorithmEntry> *LibsadPlugin::algorithm_table = new vector<LibsadPlugin::pluginAlgorithmEntry>;
+
 int LibsadPlugin::instance_counter = 0;
 
 LibsadPlugin::LibsadPlugin(void) {
@@ -26,26 +32,31 @@ LibsadPlugin::~LibsadPlugin(void) {
 	// get exclusive lock (mutex)
 	this->instance_counter--;
 	if(this->instance_counter == 0) {
-		free(this->data_file_table);
-		free(this->algorithm_table);
-		this->data_file_table = NULL;
-		this->algorithm_table = NULL;
-		this->n_data_file_table = 0;
-		this->n_algorithm_table = 0;
+		LibsadPlugin::data_file_table->clear ();
+		LibsadPlugin::algorithm_table->clear ();
+
 	}
 	// release exclusive lock
 }
 
 bool LibsadPlugin::isExtentionMatch (const char *ext, DataFileHandlerType t) const {
-	/* TODO */
-	//std::cout << "match_data_file_handler_extention(" << ext << ", " << t << ")" << std::endl;
-	if (t == PLUGIN_TYPE_DATA_FILE_TABLE && strcmp(ext, ".csv") == 0) return true;
-	else return false;
+	char *c = const_cast<char *>(ext);
+
+	// If *ext starts with a '.', increase the pointer to exclusive the dot from the match.
+	while (c[0] == '.') c++;
+
+	// Loop over all data hile handlers and check the type and code, if a match is found, return true.
+	for (pluginDataFileEntry e : *(LibsadPlugin::data_file_table)) {
+		if (strcmp(e.code, c) == 0 && IS_SET(e.handlers, t)) return true;
+	}
+
+	// No match was found.
+	return false;
 }
 
 void LibsadPlugin::registerPlugin(const char *code, const pluginType type, const pluginDetails *details, void *data) {
-	if (type == PLUGIN_TYPE_DATA_FILE) LibsadPlugin::addDataFileEntry(code, details, static_cast<pluginDataFile *>(data));
-	if (type == PLUGIN_TYPE_ALGORITHM) LibsadPlugin::addAlgorithmEntry(code, details, static_cast<pluginAlgorithm *>(data));
+	if (type == PLUGIN_TYPE_DATA_FILE) LibsadPlugin::addDataFileEntry(code, details, static_cast<const pluginDataFile *>(data));
+	if (type == PLUGIN_TYPE_ALGORITHM) LibsadPlugin::addAlgorithmEntry(code, details, static_cast<const pluginAlgorithm *>(data));
 	return;
 }
 
@@ -55,40 +66,57 @@ void LibsadPlugin::removePlugin(const char *code, const pluginType type) {
 	return;
 }
 
-int LibsadPlugin::getDataFileExtentions(DataFileHandlerType t, char **buf) {
-	int n = 0;
-	*buf = NULL;
-	for(unsigned int i = 0; i < LibsadPlugin::n_data_file_table; i++) {
-		pluginDataFileEntry e = LibsadPlugin::data_file_table[i];
+const vector<const char *> *LibsadPlugin::getDataFileExtentions(DataFileHandlerType t) {
+	vector<const char *> *v = new vector<const char *>;
+	v->reserve (LibsadPlugin::data_file_table->size ());
+
+	for (const pluginDataFileEntry e : *(LibsadPlugin::data_file_table)) {
 		if ((t == PLUGIN_TYPE_DATA_FILE_READ && e.data.read_class != NULL) ||
 			(t == PLUGIN_TYPE_DATA_FILE_WRITE && e.data.write_class != NULL) ||
 			(t == PLUGIN_TYPE_DATA_FILE_WAYPOINT && e.data.waypoint_class != NULL) ||
 			(t == PLUGIN_TYPE_DATA_FILE_TABLE && e.data.table_class != NULL)) {
-			n++;
-			*buf = static_cast<char *>(realloc(*buf, n * sizeof(char *)));
-			char *ptr = static_cast<char *>(*buf + n);
-			*ptr = *(e.code);
+			v->push_back(e.code);
 		}
 	}
 
-	return n;
+	v->shrink_to_fit ();
+
+	return v;
 }
 
-bool LibsadPlugin::addDataFileEntry(const char *code, const pluginDetails *details, pluginDataFile *data) {
-	(void) code;
-	(void) details;
-	(void) data;
-	/* TODO */
+bool LibsadPlugin::addDataFileEntry(const char *c, const pluginDetails *d, const pluginDataFile *f) {
+	for (const pluginDataFileEntry e : *(LibsadPlugin::data_file_table)) {
+		if (strcmp(e.code, c) == 0) return false;
+	}
+
+	unsigned int h = PLUGIN_TYPE_DATA_FILE_NONE;
+
+	if (f->read_class != NULL) h |= PLUGIN_TYPE_DATA_FILE_READ;
+	if (f->write_class != NULL) h |= PLUGIN_TYPE_DATA_FILE_WRITE;
+	if (f->waypoint_class != NULL) h |= PLUGIN_TYPE_DATA_FILE_WAYPOINT;
+	if (f->table_class != NULL) h |= PLUGIN_TYPE_DATA_FILE_TABLE;
+
+	const LibsadPlugin::pluginDataFileEntry e = {c, static_cast<DataFileHandlerType>(h), *d, *f};
+
+	LibsadPlugin::data_file_table->push_back (e);
+
 	return true;
 }
 
 bool LibsadPlugin::removeDataFileEntry(const char *code) {
-	(void) code;
-	/* TODO */
-	return true;
+	if (code == NULL) return false;
+	for (unsigned int i = 0; i < LibsadPlugin::data_file_table->size (); i++) {
+		pluginDataFileEntry e = LibsadPlugin::data_file_table->at(i);
+		if (strcmp(e.code, code) == 0) {
+			LibsadPlugin::data_file_table->erase (LibsadPlugin::data_file_table->begin() + i);
+			return true;
+		}
+	}
+
+	return false;
 }
 
-bool LibsadPlugin::addAlgorithmEntry(const char *code, const pluginDetails *details, pluginAlgorithm *data) {
+bool LibsadPlugin::addAlgorithmEntry(const char *code, const pluginDetails *details, const pluginAlgorithm *data) {
 	(void) code;
 	(void) details;
 	(void) data;
