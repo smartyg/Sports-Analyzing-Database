@@ -135,6 +135,7 @@ AC_SUBST([LIBRARY_OLD_INTERFACE], [$((LIBRARY_CURRENT_VERSION-LIBRARY_AGE_VERSIO
 
 if test "x$release" == xtrue; then
 	AC_DEFINE([_RELEASE], [], [release flag])
+	AM_SILENT_RULES([yes])
 elif test "x$debug" == xtrue; then
 	AC_DEFINE([_DEBUG], [], [debug flag])
 else
@@ -189,6 +190,7 @@ if test -f README.in; then
 fi
 
 AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
+AM_CONDITIONAL([RELEASE], [test x$release = xtrue])
 AM_CONDITIONAL([DOCS], [test x$docs = xtrue])
 AM_CONDITIONAL([MAN], [test x$man = xtrue])
 AM_CONDITIONAL([HAVE_HELP2MAN], [test -n "$HELP2MAN"])
