@@ -24,7 +24,7 @@ AM_CFLAGS += $(COMMON_DEBUG_OPTIONS) \
 	-Wold-style-definition
 AM_CXXFLAGS += $(COMMON_DEBUG_OPTIONS) \
 	-Wabi -Wconversion-null  -Wctor-dtor-privacy -Wdelete-non-virtual-dtor \
-	-Wnarrowing -Wnoexcept -Wnon-virtual-dtor  -Wreorder -Weffc++ -Wstrict-null-sentinel \
+	-Wnarrowing -Wnoexcept -Wnon-virtual-dtor  -Wreorder -Wstrict-null-sentinel \
 	-Wno-non-template-friend  -Wold-style-cast -Woverloaded-virtual  -Wno-pmf-conversions \
 	-Wsign-promo
 else
@@ -78,7 +78,8 @@ libsadfs_@LIBRARY_API_VERSION@_la_SOURCES = src/libsadfs/src/path.cpp \
 	src/libsadfs/src/resolvedpath.cpp \
 	src/libsadfs/src/utils.cpp \
 	src/libsadfs/src/sadfs.cpp \
-	src/libsadfs/src/exceptions.cpp
+	src/libsadfs/src/exceptions.cpp \
+	src/libsadfs/src/logger.cpp
 libsadfs_@LIBRARY_API_VERSION@_la_LIBADD = libsad-@LIBRARY_API_VERSION@.la
 libsadfs_@LIBRARY_API_VERSION@_la_LDFLAGS = -version-info @LIBRARY_CURRENT_VERSION@:@LIBRARY_REVISION_VERSION@:@LIBRARY_AGE_VERSION@
 libsadfs_@LIBRARY_API_VERSION@_la_includedir = $(includedir)
@@ -87,7 +88,8 @@ noinst_HEADERS += src/libsadfs/src/path.hpp \
 	src/libsadfs/src/pathresolver.hpp \
 	src/libsadfs/src/resolvedpath.hpp \
 	src/libsadfs/src/utils.hpp \
-	src/libsadfs/src/exceptions.hpp
+	src/libsadfs/src/exceptions.hpp \
+	src/libsadfs/src/logger.hpp
 
 
 pkglib_LTLIBRARIES = gps.la

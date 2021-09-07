@@ -74,7 +74,17 @@ AC_ARG_ENABLE([debug],
 	esac],
 	[debug=false])
 
-#compile manpage?
+# release flag (remove all debug code from compilation)
+AC_ARG_ENABLE([release],
+	[AS_HELP_STRING([--enable-release], [Compile for release (remove debug code) @<:@default=disabled@:>@])],
+	[case "${enableval}" in
+		yes) release=true; debug=no ;;
+		no)  release=false ;;
+		*) AC_MSG_ERROR([bad value ${enableval} for --enable-release]) ;;
+	esac],
+	[release=false])
+
+#compile manpage
 AC_ARG_ENABLE([man],
 	[AS_HELP_STRING([--disable-man], [generate documentation @<:@default=enabled@:>@])],
 	[case "${enableval}" in
@@ -83,6 +93,11 @@ AC_ARG_ENABLE([man],
 		*) AC_MSG_ERROR([bad value ${enableval} for --disable-man]) ;;
 	esac],
 	[man=true])
+
+# Check for GNU C++17 standard
+AX_CXX_COMPILE_STDCXX_11(ext, mandatory)
+AX_CXX_COMPILE_STDCXX_14(ext, optional)
+AX_CXX_COMPILE_STDCXX_17(ext, optional)
 
 # Define large file symbol
 AC_SYS_LARGEFILE
@@ -118,8 +133,10 @@ AC_DEFINE([_(s)], [gettext(s)], [use gnu extensions])
 # Compute the major version of the library which is the last part of the library SONAME.
 AC_SUBST([LIBRARY_OLD_INTERFACE], [$((LIBRARY_CURRENT_VERSION-LIBRARY_AGE_VERSION))])
 
-if test "x$debug" == xtrue; then
-	AC_DEFINE([DEBUG], [], [debug flag])
+if test "x$release" == xtrue; then
+	AC_DEFINE([_RELEASE], [], [release flag])
+elif test "x$debug" == xtrue; then
+	AC_DEFINE([_DEBUG], [], [debug flag])
 else
 	AM_SILENT_RULES([yes])
 fi
