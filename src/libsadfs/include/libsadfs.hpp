@@ -25,7 +25,7 @@ public:
 	 * ignored.	 The 'st_ino' field is ignored except if the 'use_ino'
 	 * mount option is given.
 	 */
-	int getattr (const char *, struct stat *);
+	int getattr (const char *, struct stat *) const;
 
 	/** Read the target of a symbolic link
 	 *
@@ -35,7 +35,7 @@ public:
 	 * buffer, it should be truncated.	The return value should be 0
 	 * for success.
 	 */
-	int readlink (const char *, char *, size_t);
+	int readlink (const char *, char *, size_t) const;
 
 	/** Create a file node
 	 *
@@ -43,7 +43,7 @@ public:
 	 * nodes.  If the filesystem defines a create() method, then for
 	 * regular files that will be called instead.
 	 */
-	int mknod (const char *, mode_t, dev_t);
+	int mknod (const char *, mode_t, dev_t) const;
 
 	/** Create a directory
 	 *
@@ -51,31 +51,31 @@ public:
 	 * bits set, i.e. S_ISDIR(mode) can be false.  To obtain the
 	 * correct directory type bits use  mode|S_IFDIR
 	 * */
-	int mkdir (const char *, mode_t);
+	int mkdir (const char *, mode_t) const;
 
 	/** Remove a file */
-	int unlink (const char *);
+	int unlink (const char *) const;
 
 	/** Remove a directory */
-	int rmdir (const char *);
+	int rmdir (const char *) const;
 
 	/** Create a symbolic link */
-	int symlink (const char *, const char *);
+	int symlink (const char *, const char *) const;
 
 	/** Rename a file */
-	int rename (const char *, const char *);
+	int rename (const char *, const char *) const;
 
 	/** Create a hard link to a file */
-	int link (const char *, const char *);
+	int link (const char *, const char *) const;
 
 	/** Change the permission bits of a file */
-	int chmod (const char *, mode_t);
+	int chmod (const char *, mode_t) const;
 
 	/** Change the owner and group of a file */
-	int chown (const char *, uid_t, gid_t);
+	int chown (const char *, uid_t, gid_t) const;
 
 	/** Change the size of a file */
-	int truncate (const char *, off_t);
+	int truncate (const char *, off_t) const;
 
 	/** File open operation
 	 *
@@ -94,7 +94,7 @@ public:
 	 *
 	 * Changed in version 2.2
 	 */
-	int open (const char *, struct fuse_file_info *);
+	int open (const char *, struct fuse_file_info *) const;
 
 	/** Read data from an open file
 	 *
@@ -107,7 +107,7 @@ public:
 	 *
 	 * Changed in version 2.2
 	 */
-	int read (const char *, char *, size_t, off_t, struct fuse_file_info *);
+	int read (const char *, char *, size_t, off_t, struct fuse_file_info *) const;
 
 	/** Write data to an open file
 	 *
@@ -117,7 +117,7 @@ public:
 	 *
 	 * Changed in version 2.2
 	 */
-	int write (const char *, const char *, size_t, off_t, struct fuse_file_info *);
+	int write (const char *, const char *, size_t, off_t, struct fuse_file_info *) const;
 
 	/** Get file system statistics
 	 *
@@ -126,7 +126,7 @@ public:
 	 * Replaced 'struct statfs' parameter with 'struct statvfs' in
 	 * version 2.5
 	 */
-	int statfs (const char *, struct statvfs *);
+	int statfs (const char *, struct statvfs *) const;
 
 	/** Possibly flush cached data
 	 *
@@ -151,7 +151,7 @@ public:
 	 *
 	 * Changed in version 2.2
 	 */
-	int flush (const char *, struct fuse_file_info *);
+	int flush (const char *, struct fuse_file_info *) const;
 
 	/** Release an open file
 	 *
@@ -167,7 +167,7 @@ public:
 	 *
 	 * Changed in version 2.2
 	 */
-	int release (const char *, struct fuse_file_info *);
+	int release (const char *, struct fuse_file_info *) const;
 
 	/** Synchronize file contents
 	 *
@@ -176,19 +176,19 @@ public:
 	 *
 	 * Changed in version 2.2
 	 */
-	int fsync (const char *, int, struct fuse_file_info *);
+	int fsync (const char *, int, struct fuse_file_info *) const;
 
 	/** Set extended attributes */
-	int setxattr (const char *, const char *, const char *, size_t, int);
+	int setxattr (const char *, const char *, const char *, size_t, int) const;
 
 	/** Get extended attributes */
-	int getxattr (const char *, const char *, char *, size_t);
+	int getxattr (const char *, const char *, char *, size_t) const;
 
 	/** List extended attributes */
-	int listxattr (const char *, char *, size_t);
+	int listxattr (const char *, char *, size_t) const;
 
 	/** Remove extended attributes */
-	int removexattr (const char *, const char *);
+	int removexattr (const char *, const char *) const;
 
 	/** Open directory
 	 *
@@ -200,7 +200,7 @@ public:
 	 *
 	 * Introduced in version 2.3
 	 */
-	int opendir (const char *, struct fuse_file_info *);
+	int opendir (const char *, struct fuse_file_info *) const;
 
 	/** Read directory
 	 *
@@ -223,13 +223,13 @@ public:
 	 *
 	 * Introduced in version 2.3
 	 */
-	int readdir (const char *, void *, fuse_fill_dir_t, off_t, struct fuse_file_info *);
+	int readdir (const char *, void *, fuse_fill_dir_t, off_t, struct fuse_file_info *) const;
 
 	/** Release directory
 	 *
 	 * Introduced in version 2.3
 	 */
-	int releasedir (const char *, struct fuse_file_info *);
+	int releasedir (const char *, struct fuse_file_info *) const;
 
 	/** Synchronize directory contents
 	 *
@@ -238,7 +238,7 @@ public:
 	 *
 	 * Introduced in version 2.3
 	 */
-	int fsyncdir (const char *, int, struct fuse_file_info *);
+	int fsyncdir (const char *, int, struct fuse_file_info *) const;
 
 	/**
 	 * Check file access permissions
@@ -251,7 +251,7 @@ public:
 	 *
 	 * Introduced in version 2.5
 	 */
-	int access (const char *, int);
+	int access (const char *, int) const;
 
 	/**
 	 * Create and open a file
@@ -265,7 +265,7 @@ public:
 	 *
 	 * Introduced in version 2.5
 	 */
-	int create (const char *, mode_t, struct fuse_file_info *);
+	int create (const char *, mode_t, struct fuse_file_info *) const;
 
 	/**
 	 * Change the size of an open file
@@ -279,7 +279,7 @@ public:
 	 *
 	 * Introduced in version 2.5
 	 */
-	int ftruncate (const char *, off_t, struct fuse_file_info *);
+	int ftruncate (const char *, off_t, struct fuse_file_info *) const;
 
 	/**
 	 * Get attributes from an open file
@@ -293,7 +293,7 @@ public:
 	 *
 	 * Introduced in version 2.5
 	 */
-	int fgetattr (const char *, struct stat *, struct fuse_file_info *);
+	int fgetattr (const char *, struct stat *, struct fuse_file_info *) const;
 
 	/**
 	 * Perform POSIX file locking operation
@@ -327,7 +327,7 @@ public:
 	 *
 	 * Introduced in version 2.6
 	 */
-	int lock (const char *, struct fuse_file_info *, int cmd, struct flock *);
+	int lock (const char *, struct fuse_file_info *, int cmd, struct flock *) const;
 
 	/**
 	 * Change the access and modification times of a file with
@@ -340,7 +340,7 @@ public:
 	 *
 	 * Introduced in version 2.6
 	 */
-	int utimens (const char *, const struct timespec tv[2]);
+	int utimens (const char *, const struct timespec tv[2]) const;
 
 	/**
 	 * Map block index within file to block index within device
@@ -350,7 +350,7 @@ public:
 	 *
 	 * Introduced in version 2.6
 	 */
-	int bmap (const char *, size_t blocksize, uint64_t *idx);
+	int bmap (const char *, size_t blocksize, uint64_t *idx) const;
 
 	/**
 	 * Ioctl
@@ -367,7 +367,7 @@ public:
 	 *
 	 * Introduced in version 2.8
 	 */
-	int ioctl (const char *, int cmd, void *arg, struct fuse_file_info *, unsigned int flags, void *data);
+	int ioctl (const char *, int cmd, void *arg, struct fuse_file_info *, unsigned int flags, void *data) const;
 
 	/**
 	 * Poll for IO readiness events
@@ -386,7 +386,7 @@ public:
 	 *
 	 * Introduced in version 2.8
 	 */
-	int poll (const char *, struct fuse_file_info *, struct fuse_pollhandle *ph, unsigned *reventsp);
+	int poll (const char *, struct fuse_file_info *, struct fuse_pollhandle *ph, unsigned *reventsp) const;
 
 	/** Write contents of buffer to an open file
 	 *
@@ -396,7 +396,7 @@ public:
 	 *
 	 * Introduced in version 2.9
 	 */
-	int write_buf (const char *, struct fuse_bufvec *buf, off_t off, struct fuse_file_info *);
+	int write_buf (const char *, struct fuse_bufvec *buf, off_t off, struct fuse_file_info *) const;
 
 	/** Store data from an open file in a buffer
 	 *
@@ -414,7 +414,7 @@ public:
 	 *
 	 * Introduced in version 2.9
 	 */
-	int read_buf (const char *, struct fuse_bufvec **bufp, size_t size, off_t off, struct fuse_file_info *);
+	int read_buf (const char *, struct fuse_bufvec **bufp, size_t size, off_t off, struct fuse_file_info *) const;
 	/**
 	 * Perform BSD file locking operation
 	 *
@@ -435,7 +435,7 @@ public:
 	 *
 	 * Introduced in version 2.9
 	 */
-	int flock (const char *, struct fuse_file_info *, int op);
+	int flock (const char *, struct fuse_file_info *, int op) const;
 
 	/**
 	 * Allocates space for an open file
@@ -447,16 +447,16 @@ public:
 	 *
 	 * Introduced in version 2.9.1
 	 */
-	int fallocate (const char *, int, off_t, off_t, struct fuse_file_info *);
+	int fallocate (const char *, int, off_t, off_t, struct fuse_file_info *) const;
 
 private:
-	Libsad *lib;
-	PathResolver *pr;
+	const Libsad *lib;
+	const PathResolver *pr;
 	struct fuse_context *fuse_context;
 	struct fuse_conn_info *fuse_conn;
 	sadfsOptions *options;
 
-	const int getPathStat(ResolvedPath *rp, struct stat *st);
+	int getPathStat(const ResolvedPath *rp, struct stat *st) const;
 };
 
 #endif /* _X_LIBSADFS_HPP_ */

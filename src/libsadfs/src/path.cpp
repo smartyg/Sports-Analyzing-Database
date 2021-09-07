@@ -9,7 +9,7 @@
 
 #define FILTER_ALL (PathResolver::FILTER_BY_DATE | PathResolver::FILTER_BY_TITLE | PathResolver::FILTER_BY_ACTIVITY | PathResolver::FILTER_BY_ID)
 
-#define ADD_PATH(id, name, base_id, type, mode, suffix, filter, target_type) {id, name, base_id, (mode_t)((type) | (mode)), suffix, (filter), (target_type) }
+#define ADD_PATH(id, name, base_id, type, mode, suffix, filter, target_type) {id, name, base_id, static_cast<mode_t>((type) | (mode)), suffix, (filter), (target_type) }
 
 path_def paths[] = {
 	ADD_PATH(PATH_TYPE_DIR_ROOT, "/", PATH_TYPE_NONE, S_IFDIR, S_IRUSR | S_IXUSR, LibsadPlugin::PLUGIN_TYPE_DATA_FILE_NONE, PathResolver::FILTER_NONE, Libsad::OBJECT_NONE),

@@ -39,8 +39,8 @@ const char *Utils::makeFilePath(const char *base, const char *name, const char* 
 		len++;
 	}
 
-	char *dest = (char *)malloc(sizeof(char) * len);
-	char *ptr = dest;
+	const char *dest = static_cast<const char *>(malloc(sizeof(char) * len));
+	char *ptr = const_cast<char *>(dest);
 
 	if (add_starting_slash) {
 		ptr[0] = '/';
@@ -71,5 +71,6 @@ const char *Utils::makeFilePath(const char *base, const char *name, const char* 
 	}
 	ptr[0] = '\0';
 
-	return (const char *)dest;
+	//return (const char *)dest;
+	return dest;
 }

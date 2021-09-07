@@ -7,14 +7,14 @@
 
 class GpsWriter: public DataFilePluginWriter {
 public:
-	GpsWriter(GpsPlugin *base, WriteCallback cb_write);
-	~GpsWriter(void);
-	bool addLocation(struct GpsLocation *location);
-	bool addStatistics(struct GpsStatistics *statistics);
-	bool finished(void);
+	GpsWriter (const GpsPlugin *, const WriteCallback);
+	~GpsWriter (void);
+	bool addLocation (const struct GpsLocation *);
+	bool addStatistics (const struct GpsStatistics *);
+	bool finished (void);
 
 private:
-	GpsPlugin *base_instance;
+	const GpsPlugin *base_instance;
 	WriteCallback cb_write;
 };
 

@@ -25,28 +25,32 @@ public:
 
 class DataFilePluginReader {
 public:
+	virtual ~DataFilePluginReader() = default;
 	virtual bool read(size_t, void *);
 	virtual bool finished();
 };
 
 class DataFilePluginWriter {
 public:
-	virtual bool addLocation(struct GpsLocation*);
-	virtual bool addStatistics(struct GpsStatistics*);
+	virtual ~DataFilePluginWriter() = default;
+	virtual bool addLocation(const struct GpsLocation*);
+	virtual bool addStatistics(const struct GpsStatistics*);
 	virtual bool finished();
 };
 
 class DataFilePluginWaypoint {
 public:
-	virtual bool addLocation(struct GpsLocation*);
+	virtual ~DataFilePluginWaypoint() = default;
+	virtual bool addLocation(const struct GpsLocation*);
 	virtual bool finished();
 };
 
 class DataFilePluginTable {
 public:
-	virtual bool setColumns(int);
-	virtual bool setHeaders(size_t, void *);
-	virtual bool addEntry(size_t, void *);
+	virtual ~DataFilePluginTable() = default;
+	virtual bool setColumns(const int);
+	virtual bool setHeaders(const size_t, const void *);
+	virtual bool addEntry(const size_t, const void *);
 	virtual bool finished();
 };
 
@@ -59,7 +63,7 @@ public:
 		PLUGIN_TYPE_LAST
 	} pluginType;
 
-	typedef enum : uint_fast8_t{
+	typedef enum : uint_fast8_t {
 		PLUGIN_TYPE_DATA_FILE_NONE = 0x0,
 		PLUGIN_TYPE_DATA_FILE_READ = 0x1,
 		PLUGIN_TYPE_DATA_FILE_WRITE = 0x2,
@@ -77,29 +81,25 @@ public:
 
 	typedef struct {
 		DataFilePlugin *instance;
-		DataFilePluginReader *(*read_class)(DataFilePlugin*, LocationCallback, StatisticsCallback);
-		DataFilePluginWriter *(*write_class)(DataFilePlugin*, WriteCallback);
-		DataFilePluginWaypoint *(*waypoint_class)(DataFilePlugin*, WriteCallback);
-		DataFilePluginTable *(*table_class)(DataFilePlugin*, WriteCallback);
+		DataFilePluginReader *(*read_class) (const DataFilePlugin*, const LocationCallback, const StatisticsCallback);
+		DataFilePluginWriter *(*write_class) (const DataFilePlugin*, const WriteCallback);
+		DataFilePluginWaypoint *(*waypoint_class) (const DataFilePlugin*, const WriteCallback);
+		DataFilePluginTable *(*table_class) (const DataFilePlugin*, const WriteCallback);
 	} pluginDataFile;
 
 	typedef struct {
 		int i;
 	} pluginAlgorithm;
 
-	LibsadPlugin(void);
-	~LibsadPlugin(void);
+	LibsadPlugin (void);
+	~LibsadPlugin (void);
 
-	bool isExtentionMatch(const char *ext, DataFileHandlerType t);
+	bool isExtentionMatch (const char *, DataFileHandlerType) const;
 
-	static void registerPlugin(const char *code, const pluginType type, const pluginDetails *details, void *data);
-	static void removePlugin(const char *code, const pluginType type);
+	static void registerPlugin (const char *, const pluginType, const pluginDetails *, void *);
+	static void removePlugin (const char *, const pluginType);
 
-	static pluginDetails* getEmptyPluginDetails();
-	static pluginDataFile* getEmptyPluginDataFile();
-	static pluginAlgorithm* getEmptyPluginAlgorithm();
-
-	static int getDataFileExtentions(DataFileHandlerType, char **);
+	static int getDataFileExtentions (const DataFileHandlerType, char **);
 
 private:
 	typedef struct {
@@ -122,12 +122,12 @@ private:
 	static unsigned int n_algorithm_table;
 	static int instance_counter;
 
-	static void loadPlugins(void);
-	static int loadPluginFilter(const struct dirent *file);
-	static bool addDataFileEntry(const char *code, const pluginDetails *details, pluginDataFile *data);
-	static bool removeDataFileEntry(const char *code);
-	static bool addAlgorithmEntry(const char *code, const pluginDetails *details, pluginAlgorithm *data);
-	static bool removeAlgorithmEntry(const char *code);
+	static void loadPlugins (void);
+	static int loadPluginFilter (const struct dirent *);
+	static bool addDataFileEntry (const char *, const pluginDetails *, pluginDataFile *);
+	static bool removeDataFileEntry (const char *);
+	static bool addAlgorithmEntry (const char *, const pluginDetails *, pluginAlgorithm *);
+	static bool removeAlgorithmEntry (const char *);
 };
 
 #endif /* _X_LIBSADPLUGIN_HPP_ */

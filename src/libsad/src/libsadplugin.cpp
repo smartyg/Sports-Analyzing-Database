@@ -36,8 +36,7 @@ LibsadPlugin::~LibsadPlugin(void) {
 	// release exclusive lock
 }
 
-bool LibsadPlugin::isExtentionMatch(const char *ext, DataFileHandlerType t)
-{
+bool LibsadPlugin::isExtentionMatch (const char *ext, DataFileHandlerType t) const {
 	/* TODO */
 	//std::cout << "match_data_file_handler_extention(" << ext << ", " << t << ")" << std::endl;
 	if (t == PLUGIN_TYPE_DATA_FILE_TABLE && strcmp(ext, ".csv") == 0) return true;
@@ -45,8 +44,8 @@ bool LibsadPlugin::isExtentionMatch(const char *ext, DataFileHandlerType t)
 }
 
 void LibsadPlugin::registerPlugin(const char *code, const pluginType type, const pluginDetails *details, void *data) {
-	if (type == PLUGIN_TYPE_DATA_FILE) LibsadPlugin::addDataFileEntry(code, details, (pluginDataFile *)data);
-	if (type == PLUGIN_TYPE_ALGORITHM) LibsadPlugin::addAlgorithmEntry(code, details, (pluginAlgorithm *)data);
+	if (type == PLUGIN_TYPE_DATA_FILE) LibsadPlugin::addDataFileEntry(code, details, static_cast<pluginDataFile *>(data));
+	if (type == PLUGIN_TYPE_ALGORITHM) LibsadPlugin::addAlgorithmEntry(code, details, static_cast<pluginAlgorithm *>(data));
 	return;
 }
 
@@ -59,16 +58,16 @@ void LibsadPlugin::removePlugin(const char *code, const pluginType type) {
 int LibsadPlugin::getDataFileExtentions(DataFileHandlerType t, char **buf) {
 	int n = 0;
 	*buf = NULL;
-	for(int i = 0; i < LibsadPlugin::n_data_file_table; i++) {
+	for(unsigned int i = 0; i < LibsadPlugin::n_data_file_table; i++) {
 		pluginDataFileEntry e = LibsadPlugin::data_file_table[i];
 		if ((t == PLUGIN_TYPE_DATA_FILE_READ && e.data.read_class != NULL) ||
 			(t == PLUGIN_TYPE_DATA_FILE_WRITE && e.data.write_class != NULL) ||
 			(t == PLUGIN_TYPE_DATA_FILE_WAYPOINT && e.data.waypoint_class != NULL) ||
 			(t == PLUGIN_TYPE_DATA_FILE_TABLE && e.data.table_class != NULL)) {
 			n++;
-			*buf = (char *)realloc(*buf, n * sizeof(char *));
-			const char *ptr = (char *)(*buf + n);
-			ptr = e.code;
+			*buf = static_cast<char *>(realloc(*buf, n * sizeof(char *)));
+			char *ptr = static_cast<char *>(*buf + n);
+			*ptr = *(e.code);
 		}
 	}
 
@@ -76,21 +75,29 @@ int LibsadPlugin::getDataFileExtentions(DataFileHandlerType t, char **buf) {
 }
 
 bool LibsadPlugin::addDataFileEntry(const char *code, const pluginDetails *details, pluginDataFile *data) {
+	(void) code;
+	(void) details;
+	(void) data;
 	/* TODO */
 	return true;
 }
 
 bool LibsadPlugin::removeDataFileEntry(const char *code) {
+	(void) code;
 	/* TODO */
 	return true;
 }
 
 bool LibsadPlugin::addAlgorithmEntry(const char *code, const pluginDetails *details, pluginAlgorithm *data) {
+	(void) code;
+	(void) details;
+	(void) data;
 	/* TODO */
 	return true;
 }
 
 bool LibsadPlugin::removeAlgorithmEntry(const char *code) {
+	(void) code;
 	/* TODO */
 	return true;
 }
@@ -105,7 +112,7 @@ void LibsadPlugin::loadPlugins(void)
 		for(i = 0; i < j; i++)
 		{
 			size_t len = strlen(plugin_dir) + strlen(entry[i]->d_name) + 2;
-			char *file = (char *)malloc(sizeof(char) * len);
+			char *file = static_cast<char *>(malloc(sizeof(char) * len));
 			strncpy(file, plugin_dir, strlen(plugin_dir));
 			file[strlen(plugin_dir)] = '/';
 			strcpy(file + strlen(plugin_dir) + 1, entry[i]->d_name);

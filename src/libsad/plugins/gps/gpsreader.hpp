@@ -8,13 +8,13 @@
 
 class GpsReader: public DataFilePluginReader {
 public:
-	GpsReader(GpsPlugin *base, LocationCallback cb_location, StatisticsCallback cb_statistics);
-	~GpsReader(void);
-	bool read(size_t buffer_size, void *buffer);
-	bool finished(void);
+	GpsReader (const GpsPlugin *, const LocationCallback, const StatisticsCallback);
+	~GpsReader (void);
+	bool read (size_t, void *);
+	bool finished (void);
 
 private:
-	GpsPlugin *base_instance;
+	const GpsPlugin *base_instance;
 	LocationCallback cb_location;
 	StatisticsCallback cb_statistics;
 };

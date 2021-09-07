@@ -10,22 +10,22 @@
 void __attribute__((constructor)) register_handler();
 void __attribute__((destructor)) remove_handler();
 
-DataFilePluginReader* create_read_class(DataFilePlugin *base, LocationCallback cb_location, StatisticsCallback cb_statistics)
-{
-	GpsReader *reader = new GpsReader((GpsPlugin *)base, cb_location, cb_statistics);
+DataFilePluginReader* create_read_class (const DataFilePlugin *, const LocationCallback, const StatisticsCallback);
+DataFilePluginWriter* create_write_class (const DataFilePlugin *, const WriteCallback);
+
+DataFilePluginReader* create_read_class (const DataFilePlugin *base, const LocationCallback cb_location, const StatisticsCallback cb_statistics) {
+	GpsReader *reader = new GpsReader(static_cast<const GpsPlugin *>(base), cb_location, cb_statistics);
 	return reader;
 }
 
-DataFilePluginWriter* create_write_class(DataFilePlugin *base, WriteCallback cb_write)
-{
-	GpsWriter *writer = new GpsWriter((GpsPlugin *)base, cb_write);
+DataFilePluginWriter* create_write_class (const DataFilePlugin *base, const WriteCallback cb_write) {
+	GpsWriter *writer = new GpsWriter(static_cast<const GpsPlugin *>(base), cb_write);
 	return writer;
 }
 
-void register_handler()
-{
-	LibsadPlugin::pluginDetails* details = LibsadPlugin::getEmptyPluginDetails();
-	LibsadPlugin::pluginDataFile* data = LibsadPlugin::getEmptyPluginDataFile();
+void register_handler (void) {
+	LibsadPlugin::pluginDetails* details = new LibsadPlugin::pluginDetails ();
+	LibsadPlugin::pluginDataFile* data = new LibsadPlugin::pluginDataFile ();
 
 	details->name = "gps datafile handler";
 	details->author = "Martijn Goedhart";
@@ -37,10 +37,9 @@ void register_handler()
 	data->read_class = create_read_class;
 	data->write_class = create_write_class;
 
-	LibsadPlugin::registerPlugin(DATA_FILE_TYPE, LibsadPlugin::PLUGIN_TYPE_DATA_FILE, details, (void *)data);
+	LibsadPlugin::registerPlugin (DATA_FILE_TYPE, LibsadPlugin::PLUGIN_TYPE_DATA_FILE, details, data);
 }
 
-void remove_handler()
-{
+void remove_handler (void) {
 	LibsadPlugin::removePlugin(DATA_FILE_TYPE, LibsadPlugin::PLUGIN_TYPE_DATA_FILE);
 }

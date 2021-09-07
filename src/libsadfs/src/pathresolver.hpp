@@ -34,36 +34,36 @@ public:
 		FILTER_LAST = 0xff
 	} BaseFilter;
 
-	PathResolver(Libsad *lib, path_def *path_definitions);
+	PathResolver(const Libsad *lib, path_def *path_definitions);
 	~PathResolver(void);
 
-	ResolvedPath *resolve(const char *);
-	const int getChildEntries(ResolvedPath *, ResolvedPath **);
+	const ResolvedPath *resolve(const char *) const;
+	size_t getChildEntries(const ResolvedPath *, ResolvedPath **) const;
 
 	/* Getters */
-	const mode_t getMode(path_type);
-	const mode_t getMode(ResolvedPath *);
-	const char *getName(path_type);
-	const char *getName(ResolvedPath *);
-	const path_type getParent(path_type);
-	const path_type getParent(ResolvedPath *);
-	const Libsad::FilterObjectType getTargetObjectType(path_type);
-	const Libsad::FilterObjectType getTargetObjectType(ResolvedPath *);
-	const LibsadPlugin::DataFileHandlerType getDataFileHandler(path_type);
-	const LibsadPlugin::DataFileHandlerType getDataFileHandler(ResolvedPath *);
+	mode_t getMode(path_type) const;
+	mode_t getMode(const ResolvedPath *) const;
+	const char *getName(path_type) const;
+	const char *getName(const ResolvedPath *) const;
+	path_type getParent(path_type) const;
+	path_type getParent(const ResolvedPath *) const;
+	Libsad::FilterObjectType getTargetObjectType(path_type) const;
+	Libsad::FilterObjectType getTargetObjectType(const ResolvedPath *) const;
+	LibsadPlugin::DataFileHandlerType getDataFileHandler(path_type) const;
+	LibsadPlugin::DataFileHandlerType getDataFileHandler(const ResolvedPath *) const;
 
 	/* Booleans */
-	const bool hasParent(path_type);
-	const bool hasParent(ResolvedPath *);
-	const bool isDirectory(path_type);
-	const bool isDirectory(ResolvedPath *);
-	const bool isFile(path_type);
-	const bool isFile(ResolvedPath *);
-	const bool hasDataFileHandler(path_type);
-	const bool hasDataFileHandler(ResolvedPath *);
+	bool hasParent(path_type) const;
+	bool hasParent(const ResolvedPath *) const;
+	bool isDirectory(path_type) const;
+	bool isDirectory(const ResolvedPath *) const;
+	bool isFile(path_type) const;
+	bool isFile(const ResolvedPath *) const;
+	bool hasDataFileHandler(path_type) const;
+	bool hasDataFileHandler(const ResolvedPath *) const;
 
 	/* Checkers */
-	static const bool isValidPathId(path_type);
+	static bool isValidPathId(path_type);
 
 private:
 	typedef struct {
@@ -85,18 +85,18 @@ private:
 		const char *full_path;
 	} PathDefinition;
 
-	Libsad *lib;
-	PathResolver::PathDefinition *path_definitions;
+	const Libsad *lib;
+	const PathResolver::PathDefinition *path_definitions;
 
-	PathResolver::PathDefinition *getPathDefinitionRecord(path_type id);
-	PathResolver::PathDefinition *getPathDefinitionRecord(ResolvedPath *);
-	const char *getFullPath(path_type id);
-	static const char *getFullPath(PathDefinition *full_paths, path_type id);
-	static PathResolver::PathDefinition *parsePathDefinition(path_def *in);
+	const PathResolver::PathDefinition *getPathDefinitionRecord(path_type id) const;
+	const PathResolver::PathDefinition *getPathDefinitionRecord(const ResolvedPath *) const;
+	const char *getFullPath(path_type id) const;
+	static const char *getFullPath(const PathDefinition *full_paths, path_type id);
+	static const PathResolver::PathDefinition *parsePathDefinition(path_def *in);
 
 	/* From pathresolver-resolve.cpp */
-	ResolvedPath *resolveInternal(const char *, size_t, path_type, BaseFilter, Libsad::FilterInfoType *);
-	const bool isFromParent(PathDefinition *, path_type);
+	const ResolvedPath *resolveInternal(const char *, size_t, path_type, BaseFilter, Libsad::FilterInfoType *) const;
+	bool isFromParent(const PathDefinition *, path_type) const;
 
 };
 

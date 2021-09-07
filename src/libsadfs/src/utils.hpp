@@ -3,7 +3,7 @@
 
 class Utils {
 public:
-	static const char *makeFilePath(const char *base, const char *name, const char *ext);
+	static const char *makeFilePath(const char *, const char *, const char *);
 };
 
 #endif /* _X_UTILS_HPP_ */

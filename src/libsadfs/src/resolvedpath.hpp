@@ -11,34 +11,35 @@ class ResolvedPath;
 
 class ResolvedPath {
 public:
-	ResolvedPath(const char *path, path_type id);
-	ResolvedPath(const char *path, path_type id, const PathResolver::BaseFilter base_filter, const Libsad::FilterInfoType filter_info);
-	ResolvedPath(const char *base_path, const char *filename, path_type id);
-	ResolvedPath(const char *base_path, const char *filename, path_type id, const PathResolver::BaseFilter base_filter, const Libsad::FilterInfoType filter_info);
-	ResolvedPath(const char *base_path, const char *filename, const char *extention, path_type id);
-	ResolvedPath(const char *base_path, const char *filename, const char *extention, path_type id, const PathResolver::BaseFilter base_filter, const Libsad::FilterInfoType filter_info);
-	~ResolvedPath(void);
+	ResolvedPath (const char *, path_type);
+	ResolvedPath (const char *, path_type, const bool, const PathResolver::BaseFilter, const Libsad::FilterInfoType);
+	ResolvedPath (const char *, const char *, path_type);
+	ResolvedPath (const char *, const char *, path_type, const bool, const PathResolver::BaseFilter, const Libsad::FilterInfoType);
+	ResolvedPath (const char *, const char *, const char *, path_type);
+	ResolvedPath (const char *, const char *, const char *, path_type, const bool, const PathResolver::BaseFilter, const Libsad::FilterInfoType);
+	~ResolvedPath (void);
 
 	/* Getters */
-	const path_type getPathId(void);
-	const char *getPath(void);
-	const char *getFilename(void);
-	const PathResolver::BaseFilter getPathFilterBase(void);
-	const Libsad::FilterInfoType getPathFilterInfo(void);
-	const Libsad::objectId getObjectId(void);
-	const Libsad::objectTime getObjectTime(void);
+	path_type getPathId (void) const;
+	const char *getPath (void) const;
+	const char *getFilename (void) const;
+	PathResolver::BaseFilter getPathFilterBase (void) const;
+	const Libsad::FilterInfoType getPathFilterInfo (void) const;
+	Libsad::objectId getObjectId (void) const;
+	Libsad::objectTime getObjectTime (void) const;
 
 	/* Booleans */
-	const bool hasPathFilterInfo(void);
-	const bool hasObjectId(void);
-	const bool hasObjectTime(void);
+	bool hasFilter (void) const;
+	bool isFilterComplete (void) const;
+	bool hasObjectId (void) const;
+	bool hasObjectTime (void) const;
 
 	/* Checker */
-	const bool isValid(void);
+	bool isValid (void) const;
 
 private:
 	const char *path;
-	uint_least32_t path_id:8, base_filter:8, filename_offset:16;
+	uint_least32_t path_id:8, has_filter:1, base_filter:7, filename_offset:16;
 	Libsad::FilterInfoType filter_info;
 };
 

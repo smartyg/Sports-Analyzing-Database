@@ -2,6 +2,8 @@
 
 #include "config.h"
 
+#include "fuse_sadfs.hpp"
+
 #include <errno.h>
 #include <stdio.h>
 #include <atomic>
@@ -17,7 +19,7 @@
 	Sadfs *fs; \
 	if (init_in_progress) return -EBUSY; \
 	if ((fc = fuse_get_context()) == NULL) return -ENOTSUP; \
-	if ((fs = (Sadfs *)(fc->private_data)) == NULL) return -ENOTSUP; \
+	if ((fs = static_cast<Sadfs *>(fc->private_data)) == NULL) return -ENOTSUP; \
 	return fs->name (__VA_ARGS__);
 
 //atomic_bool init_in_progress = true;
@@ -29,19 +31,19 @@ void *fuse_sadfs_init(struct fuse_conn_info *conn) {
 	Sadfs *fs;
 	fc = fuse_get_context();
 	if (fc == NULL) return NULL;
-	options = (Sadfs::sadfsOptions *)(fc->private_data);
+	options = static_cast<Sadfs::sadfsOptions *>(fc->private_data);
 	fc->private_data = NULL;
 
 	if (options->debug) fprintf(stderr, ".init\n");
 	if (options == NULL) return NULL;
-	fs = new Sadfs(options, conn, fc);
+	fs = new Sadfs (options, conn, fc);
 	//free(options);
 	init_in_progress = false;
-	return (void *)fs;
+	return static_cast<void *>(fs);
 }
 
 void fuse_sadfs_destroy(void *private_data) {
-	delete (Sadfs *)private_data;
+	delete static_cast<Sadfs *>(private_data);
 }
 
 int fuse_sadfs_getattr(const char *path, struct stat *stat) {
@@ -226,7 +228,7 @@ int main(int argc, char *argv[])
 	sadfs_operations.flock		= fuse_sadfs_flock;
 	sadfs_operations.fallocate	= fuse_sadfs_fallocate;
 
-	Sadfs::sadfsOptions *options = (Sadfs::sadfsOptions *)malloc(sizeof(Sadfs::sadfsOptions));
+	Sadfs::sadfsOptions *options = static_cast<Sadfs::sadfsOptions *>(malloc(sizeof(Sadfs::sadfsOptions)));
 	options->debug = true;
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
 	struct fuse_chan *ch;

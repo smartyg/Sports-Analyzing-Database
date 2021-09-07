@@ -14,43 +14,51 @@
 // 	else return false;
 // }
 
-Libsad::Libsad() {
+Libsad::Libsad (void) {
 	/* TODO */
 	this->plugin = new LibsadPlugin();
 }
 
-Libsad::~Libsad() {
+Libsad::~Libsad (void) {
 	/* TODO */
 }
 
-const Libsad::objectId Libsad::getObjectId(objectTime time) {
+Libsad::objectId Libsad::getObjectId (const objectTime time) const {
+	(void) time;
 	/* TODO */
 	return 1;
 }
 
-size_t Libsad::freeStorageSpace() {
+size_t Libsad::freeStorageSpace (void) const {
 	/* TODO */
 	return 1;
 }
 
-size_t Libsad::availibleStorageSpace() {
+size_t Libsad::availibleStorageSpace (void) const {
 	/* TODO */
 	return 1;
 }
 
-bool Libsad::deleteObject(objectId id) {
+bool Libsad::deleteObject (objectId id) const {
 	/* TODO */
+	(void) id;
 	return true;
 }
 
-LibsadPlugin *Libsad::getPluginHandler(void) {
+const LibsadPlugin *Libsad::getPluginHandler (void) const {
 	return this->plugin;
 }
 
-int Libsad::getFilteredList(FilterObjectType o, FilterListType l, const FilterInfoType i, char **entries) {
+size_t Libsad::getFilteredList (FilterObjectType o, FilterListType l, const FilterInfoType i, char **entries) const {
+	(void) o;
+	(void) l;
+	(void) i;
+	(void) entries;
 	return 0;
 }
 
-uint_fast8_t Libsad::getActivityCodeFromName(const char *name, size_t len) {
+uint_fast8_t Libsad::getActivityCodeFromName (const char *name, size_t len) const {
+	(void) name;
+	(void) len;
 	return 1;
 }

@@ -12,25 +12,25 @@
 #include "exceptions.hpp"
 
 // Local functions
-ResolvedPath *storeTable(ResolvedPath **, size_t *, ResolvedPath *);
+ResolvedPath *storeTable(ResolvedPath **, size_t *, const ResolvedPath *);
 
-const int PathResolver::getChildEntries(ResolvedPath *rp, ResolvedPath **children) {
+size_t PathResolver::getChildEntries(const ResolvedPath *rp, ResolvedPath **children) const {
 	fprintf(stderr, "PathResolver::%s(%p, %p)\n", __FUNCTION__, rp, *children);
 
 	path_type id = rp->getPathId();
 	const char *base_path = rp->getPath();
 	size_t n = 0;
 	*children = NULL;
-	PathDefinition *pd = this->getPathDefinitionRecord(rp);
+	const PathDefinition *pd = this->getPathDefinitionRecord(rp);
 
 	// If for some reason the id's do not match, or there is no record, something went wrong.
 	if ((pd == NULL) || (pd->id != rp->getPathId())) throw InvalidResolvedPath(__FILE__, __func__, __LINE__, rp, id);
 
 	// The given *rp should not have a complete filter while still pointing to a entry with filter enabled.
-	if (pd->filters != FILTER_NONE && rp->hasPathFilterInfo() && (rp->hasObjectId() || rp->hasObjectTime())) throw InvalidPath(__FILE__, __func__, __LINE__, base_path);
+	if (pd->filters != FILTER_NONE && rp->hasFilter() && (rp->hasObjectId() || rp->hasObjectTime())) throw InvalidPath(__FILE__, __func__, __LINE__, base_path);
 
 	// if we (*rp) have a filter attached that is not complete (yet), list the filter results.
-	if (rp->hasPathFilterInfo() && !(rp->hasObjectId() || rp->hasObjectTime())) {
+	if (rp->hasFilter() && !(rp->hasObjectId() || rp->hasObjectTime())) {
 		// Save our base filter localy to make access easier.
 		BaseFilter base_filter = rp->getPathFilterBase();
 
@@ -43,28 +43,28 @@ const int PathResolver::getChildEntries(ResolvedPath *rp, ResolvedPath **childre
 				ResolvedPath *rp_tmp = new ResolvedPath(base_path, LABEL_FILTER_BY_DATE, id);
 				if (rp_tmp != NULL) {
 					ResolvedPath *tmp = storeTable(children, &n, rp_tmp);
-					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n");
+					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n", __func__);
 				}
 			}
 			if (IS_SET(pd->filters, FILTER_BY_ACTIVITY)) {
 				ResolvedPath *rp_tmp = new ResolvedPath(base_path, LABEL_FILTER_BY_ACTIVITY, id);
 				if (rp_tmp != NULL) {
 					ResolvedPath *tmp = storeTable(children, &n, rp_tmp);
-					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n");
+					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n", __func__);
 				}
 			}
 			if (IS_SET(pd->filters, FILTER_BY_TITLE)) {
 				ResolvedPath *rp_tmp = new ResolvedPath(base_path, LABEL_FILTER_BY_TITLE, id);
 				if (rp_tmp != NULL) {
 					ResolvedPath *tmp = storeTable(children, &n, rp_tmp);
-					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n");
+					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n", __func__);
 				}
 			}
 			if (IS_SET(pd->filters, FILTER_BY_ID)) {
 				ResolvedPath *rp_tmp = new ResolvedPath(base_path, LABEL_FILTER_BY_ID, id);
 				if (rp_tmp != NULL) {
 					ResolvedPath *tmp = storeTable(children, &n, rp_tmp);
-					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n");
+					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n", __func__);
 				}
 			}
 		} else {
@@ -83,79 +83,79 @@ const int PathResolver::getChildEntries(ResolvedPath *rp, ResolvedPath **childre
 			} else if (base_filter == FILTER_BY_ID) list = Libsad::LIST_TYPE_IDS;
 
 			// If we did not find any missing information, the this filter should have been marked complete by the resolver already. Here we can not handle that case anymore.
-			if (list == Libsad::LIST_TYPE_NONE) throw InvalidFilter(__FILE__, __func__, __LINE__);
+			if (list == Libsad::LIST_TYPE_NONE) throw InvalidFilter(__FILE__, __func__, __LINE__, filter_info);
 
 			// Now it's time to execute the filter (in the backend) and process the results. The results of the executed filter will be stored in *filters.
 			char *filters = NULL;
-			size_t n_filters = lib->getFilteredList((Libsad::FilterObjectType)pd->filter_object, list, filter_info, &filters);
-			for(int i = 0; i < n_filters; i++) {
+			size_t n_filters = this->lib->getFilteredList(static_cast<Libsad::FilterObjectType>(pd->filter_object), list, filter_info, &filters);
+			for(unsigned int i = 0; i < n_filters; i++) {
 				const char *f = filters + i;
 				ResolvedPath *rp_tmp = new ResolvedPath(base_path, f, id);
 				// If the constructed ResolvedPath is successfully created, store it.
 				if (rp_tmp != NULL) {
 					ResolvedPath *tmp = storeTable(children, &n, rp_tmp);
-					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n");
+					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n", __func__);
 				}
 				// As we handled this entry, immediately free the data, there is no reson to keep it around.
-				free((char *)f);
+				free(const_cast<char *>(f));
 			}
 			// Now also free the table.
 			if (filters != NULL) free(filters);
 		}
 	}
 	// First we look for entries that have our (*rp) id as parent id, entries without path name are dynamic (they depend on filters) so we exclude those.
-	for(PathResolver::PathDefinition *p = this->path_definitions; p->id != PATH_TYPE_LAST; p++) {
+	for(const PathResolver::PathDefinition *p = this->path_definitions; p->id != PATH_TYPE_LAST; p++) {
 		if (p->parent_id == id && p->name != NULL)
 		{
-			fprintf(stderr, "PathResolver::%s: loop; parse id: %d\n", __FUNCTION__, p->id);
+			fprintf(stderr, "PathResolver::%s: loop; parse id: %ld\n", __func__, p->id);
 
 			// In case the entry is a regular file and has a data file handler attached.
 			if ((S_ISREG(p->mode)) && (p->data_file_handler != LibsadPlugin::PLUGIN_TYPE_DATA_FILE_NONE)) {
 				// for each file handler that match the type of data file handler.
 				char *extentions = NULL;
 				// List all extentions for all data file handlers that support the requested handler type.
-				int n_extentions = LibsadPlugin::getDataFileExtentions((LibsadPlugin::DataFileHandlerType)p->data_file_handler, &extentions);
+				int n_extentions = LibsadPlugin::getDataFileExtentions(static_cast<LibsadPlugin::DataFileHandlerType>(p->data_file_handler), &extentions);
 				// Loop over the extensions and make create a ResolvedPath entry for each.
 				for(int i = 0; i < n_extentions; i++) {
-					fprintf(stderr, "PathResolver::%s: store entry %d: path: %s; file: %s\n", __FUNCTION__, n, base_path, p->name);
-					ResolvedPath *rp_tmp = new ResolvedPath(base_path, p->name, (const char *)(extentions + i), (path_type)p->id);
+					fprintf(stderr, "PathResolver::%s: store entry %ld: path: %s; file: %s\n", __FUNCTION__, n, base_path, p->name);
+					ResolvedPath *rp_tmp = new ResolvedPath (base_path, p->name, static_cast<const char *>(extentions + i), static_cast<path_type>(p->id));
 					//fprintf(stderr, "PathResolver::%s 1\n", __FUNCTION__);
 					// If the constructed ResolvedPath is successfully created, store it.
 					if (rp_tmp != NULL) {
 						ResolvedPath *tmp = storeTable(children, &n, rp_tmp);
-						if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n");
+						if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n", __func__);
 					}
 				}
 			} else { // In the other cases, life is simple.
-				fprintf(stderr, "PathResolver::%s: store entry %d: path: %s; file: %s\n", __FUNCTION__, n, base_path, p->name);
+				fprintf(stderr, "PathResolver::%s: store entry %ld: path: %s; file: %s\n", __func__, n, base_path, p->name);
 				// Create a ResolvedPath entry.
-				ResolvedPath *rp_tmp = new ResolvedPath(base_path, p->name, (path_type)p->id);
-				fprintf(stderr, "PathResolver::%s 2\n", __FUNCTION__);
+				ResolvedPath *rp_tmp = new ResolvedPath(base_path, p->name, static_cast<path_type>(p->id));
+				fprintf(stderr, "PathResolver::%s 2\n", __func__);
 				// If the constructed ResolvedPath is successfully created, store it.
 				if (rp_tmp != NULL) {
 					ResolvedPath *tmp = storeTable(children, &n, rp_tmp);
-					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n");
+					if (tmp != *children) fprintf(stderr, "PathResolver::%s: error returned pointers do not match\n", __func__);
 				}
 			}
 		}
 	}
 
-	return (int)n;
+	return n;
 }
 
-ResolvedPath *storeTable(ResolvedPath **t, size_t *n, ResolvedPath *e) {
-	fprintf(stderr, "%s(%p, %d, %p)\n", __FUNCTION__, *t, *n, e);
+ResolvedPath *storeTable(ResolvedPath **t, size_t *n, const ResolvedPath *e) {
+	fprintf(stderr, "%s(%p, %ld, %p)\n", __FUNCTION__, *t, *n, e);
 
 	// Calculate new size of table.
 	size_t new_size = (*n + 1) * sizeof(ResolvedPath);
 
 	// Reallocate new table with new size.
-	*t = (ResolvedPath *)realloc (*t, new_size);
+	*t = static_cast<ResolvedPath *>(realloc (*t, new_size));
 
 	// Save the element in the entry.
-	*((uintptr_t *)(*t + (off_t)(*n))) = (uintptr_t)e;
+	*(reinterpret_cast<uintptr_t *>(*t +*n)) = reinterpret_cast<uintptr_t>(e);
 
-	fprintf(stderr, "entry %p %p %ld (%p)\n", *t + (off_t)(*n), (uintptr_t *)(*t + (off_t)(*n)), *((uintptr_t *)(*t + (off_t)(*n))), *((uintptr_t *)(*t + (off_t)(*n))));
+	fprintf(stderr, "entry %p %p %ld (%lx)\n", *t + *n, reinterpret_cast<uintptr_t *>(*t + *n), *(reinterpret_cast<uintptr_t *>(*t + *n)), *(reinterpret_cast<uintptr_t *>(*t + *n)));
 
 	// Increase the number of elements.
 	(*n)++;

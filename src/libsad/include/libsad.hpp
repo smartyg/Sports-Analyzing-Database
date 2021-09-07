@@ -12,12 +12,18 @@
 
 class Libsad {
 public:
-	typedef unsigned int objectId;
-	typedef unsigned long int objectTime;
-
+	typedef uint_fast32_t objectId;
+	typedef uint_fast32_t objectTime;
+/*
 	typedef struct {
 		uint_least64_t :25, filter_month:4, filter_time:27, filter_activity:8;
 		uint_least64_t filter_year:7, filter_day:5, filter_title_first_letter:8, object_type:2, object:42;
+		const char *filter_title;
+	} FilterInfoType;
+*/
+	typedef struct {
+		uint_least64_t :13, filter_year:7, filter_month:4, filter_day:5, filter_hour:5, filter_minute:6, filter_second:6, filter_title_first_letter:8, filter_activity:8, object_type:2;
+		uint_least32_t object;
 		const char *filter_title;
 	} FilterInfoType;
 
@@ -45,17 +51,17 @@ public:
 	Libsad();
 	~Libsad();
 
-	const objectId getObjectId(objectTime time);
-	size_t freeStorageSpace(void);
-	size_t availibleStorageSpace(void);
-	bool deleteObject(objectId id);
-	LibsadPlugin *getPluginHandler(void);
+	objectId getObjectId (const objectTime time) const;
+	size_t freeStorageSpace (void) const;
+	size_t availibleStorageSpace (void) const;
+	bool deleteObject (objectId id) const;
+	const LibsadPlugin *getPluginHandler (void) const;
 
-	int getFilteredList(FilterObjectType o, FilterListType l, const FilterInfoType i, char **entries);
-	uint_fast8_t getActivityCodeFromName(const char *, size_t);
+	size_t getFilteredList (FilterObjectType, FilterListType, const FilterInfoType, char **) const;
+	uint_fast8_t getActivityCodeFromName (const char *, size_t) const;
 
 private:
-	LibsadPlugin *plugin;
+	const LibsadPlugin *plugin;
 };
 
 #endif /* _X_LIBSAD_HPP_ */

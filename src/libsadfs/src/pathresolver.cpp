@@ -12,186 +12,186 @@
 #include "libsad.hpp"
 #include "libsadplugin.hpp"
 
-PathResolver::PathResolver(Libsad *lib, path_def *path_definitions) {
-	fprintf(stderr, "PathResolver::%s(%p, %p)\n", __FUNCTION__, lib, path_definitions);
-	this->lib = lib;
-	this->path_definitions = PathResolver::parsePathDefinition(path_definitions);
+PathResolver::PathResolver(const Libsad *l, path_def *pd) {
+	fprintf(stderr, "PathResolver::%s(%p, %p)\n", __FUNCTION__, lib, pd);
+	this->lib = l;
+	this->path_definitions = PathResolver::parsePathDefinition(pd);
 }
 
 PathResolver::~PathResolver(void) {
 	fprintf(stderr, "PathResolver::%s()\n", __FUNCTION__);
-	free(this->path_definitions);
+	free(const_cast<PathDefinition *>(this->path_definitions));
 }
 
 /* Getters */
-const mode_t PathResolver::getMode(path_type id) {
+mode_t PathResolver::getMode(path_type id) const {
 	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
 	if (p == NULL) return 0;
 	return p->mode;
 }
 
-const mode_t PathResolver::getMode(ResolvedPath *rp) {
+mode_t PathResolver::getMode(const ResolvedPath *rp) const {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
 	if (p == NULL) return 0;
 	return p->mode;
 }
 
-const char *PathResolver::getName(path_type id) {
+const char *PathResolver::getName(path_type id) const {
 	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
 	if (p == NULL) return NULL;
 	return p->name;
 }
 
-const char *PathResolver::getName(ResolvedPath *rp) {
+const char *PathResolver::getName(const ResolvedPath *rp) const {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
 	if (p == NULL) return NULL;
 	return p->name;
 }
 
-const path_type PathResolver::getParent(path_type id) {
+path_type PathResolver::getParent(path_type id) const {
 	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
 	if (p == NULL) return PATH_TYPE_NONE;
-	return (path_type)p->parent_id;
+	return static_cast<path_type>(p->parent_id);
 }
 
-const path_type PathResolver::getParent(ResolvedPath *rp) {
+path_type PathResolver::getParent(const ResolvedPath *rp) const {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
 	if (p == NULL) return PATH_TYPE_NONE;
-	return (path_type)p->parent_id;
+	return static_cast<path_type>(p->parent_id);
 }
 
-const Libsad::FilterObjectType PathResolver::getTargetObjectType(path_type id) {
+Libsad::FilterObjectType PathResolver::getTargetObjectType(path_type id) const {
 	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
 	if (p == NULL) return Libsad::OBJECT_NONE;
-	return (Libsad::FilterObjectType)p->filter_object;
+	return static_cast<Libsad::FilterObjectType>(p->filter_object);
 }
 
-const Libsad::FilterObjectType PathResolver::getTargetObjectType(ResolvedPath *rp) {
+Libsad::FilterObjectType PathResolver::getTargetObjectType(const ResolvedPath *rp) const {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
 	if (p == NULL) return Libsad::OBJECT_NONE;
-	return (Libsad::FilterObjectType)p->filter_object;
+	return static_cast<Libsad::FilterObjectType>(p->filter_object);
 }
 
-const LibsadPlugin::DataFileHandlerType PathResolver::getDataFileHandler(path_type id) {
+LibsadPlugin::DataFileHandlerType PathResolver::getDataFileHandler(path_type id) const {
 	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
 	if (p == NULL) return LibsadPlugin::PLUGIN_TYPE_DATA_FILE_NONE;
-	return (LibsadPlugin::DataFileHandlerType)p->data_file_handler;
+	return static_cast<LibsadPlugin::DataFileHandlerType>(p->data_file_handler);
 }
 
-const LibsadPlugin::DataFileHandlerType PathResolver::getDataFileHandler(ResolvedPath *rp) {
+LibsadPlugin::DataFileHandlerType PathResolver::getDataFileHandler(const ResolvedPath *rp) const {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
 	if (p == NULL) return LibsadPlugin::PLUGIN_TYPE_DATA_FILE_NONE;
-	return (LibsadPlugin::DataFileHandlerType)p->data_file_handler;
+	return static_cast<LibsadPlugin::DataFileHandlerType>(p->data_file_handler);
 }
 
 /* Booleans */
-const bool PathResolver::hasParent(path_type id) {
+bool PathResolver::hasParent(path_type id) const {
 	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
 	if (p == NULL) return false;
-	return PathResolver::isValidPathId((path_type)p->parent_id);
+	return PathResolver::isValidPathId(static_cast<path_type>(p->parent_id));
 }
 
-const bool PathResolver::hasParent(ResolvedPath *rp) {
+bool PathResolver::hasParent(const ResolvedPath *rp) const {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
 	if (p == NULL) return false;
-	return PathResolver::isValidPathId((path_type)p->parent_id);
+	return PathResolver::isValidPathId(static_cast<path_type>(p->parent_id));
 }
 
-const bool PathResolver::isDirectory(path_type id) {
+bool PathResolver::isDirectory(path_type id) const {
 	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
 	return S_ISDIR(this->getMode(id));
 }
 
-const bool PathResolver::isDirectory(ResolvedPath *rp) {
+bool PathResolver::isDirectory(const ResolvedPath *rp) const {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
 	return S_ISDIR(this->getMode(rp));
 }
 
-const bool PathResolver::isFile(path_type id) {
+bool PathResolver::isFile(path_type id) const {
 	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
 	return S_ISREG(this->getMode(id));
 }
 
-const bool PathResolver::isFile(ResolvedPath *rp) {
+bool PathResolver::isFile(const ResolvedPath *rp) const {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
 	return S_ISREG(this->getMode(rp));
 }
 
-const bool PathResolver::hasDataFileHandler(path_type id) {
+bool PathResolver::hasDataFileHandler(path_type id) const {
 	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(id);
 	if (p == NULL) return false;
 	return (p-> data_file_handler != Libsad::OBJECT_NONE);
 }
 
-const bool PathResolver::hasDataFileHandler(ResolvedPath *rp) {
+bool PathResolver::hasDataFileHandler(const ResolvedPath *rp) const {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
-	PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
+	const PathResolver::PathDefinition *p = this->getPathDefinitionRecord(rp);
 	if (p == NULL) return false;
 	return (p-> data_file_handler != Libsad::OBJECT_NONE);
 }
 
 /* Checkers */
-const bool PathResolver::isValidPathId(path_type id) {
+bool PathResolver::isValidPathId(path_type id) {
 	fprintf(stderr, "PathResolver::%s()\n", __FUNCTION__);
 	return ((id > PATH_TYPE_NONE) && (id < PATH_TYPE_LAST));
 }
 
 /* Private methods */
-PathResolver::PathDefinition *PathResolver::getPathDefinitionRecord (path_type id) {
-	fprintf(stderr, "PathResolver::%s(%ld)\n", __FUNCTION__, id);
+const PathResolver::PathDefinition *PathResolver::getPathDefinitionRecord (path_type id) const {
+	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
 
 	if (id <= PATH_TYPE_NONE || id >= PATH_TYPE_LAST) return NULL;
-	PathDefinition *p = (PathDefinition *)(this->path_definitions + (size_t)id);
+	const PathDefinition *p = this->path_definitions + static_cast<size_t>(id);
 
 	if (id == p->id) return p;
 	return NULL;
 }
 
-PathResolver::PathDefinition *PathResolver::getPathDefinitionRecord (ResolvedPath *rp) {
+const PathResolver::PathDefinition *PathResolver::getPathDefinitionRecord (const ResolvedPath *rp) const {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, rp);
 	if (rp == NULL) return NULL;
 	path_type id = rp->getPathId();
 	return PathResolver::getPathDefinitionRecord(id);
 }
 
-const char *PathResolver::getFullPath (path_type id) {
+const char *PathResolver::getFullPath (path_type id) const {
 	fprintf(stderr, "PathResolver::%s(%d)\n", __FUNCTION__, id);
-	PathDefinition *p = this->getPathDefinitionRecord(id);
+	const PathDefinition *p = this->getPathDefinitionRecord(id);
 	if (p != NULL) return p->full_path;
 	return NULL;
 }
 
-const char *PathResolver::getFullPath (PathDefinition *paths, path_type id) {
-	fprintf(stderr, "PathResolver::%s(%p, %d)\n", __FUNCTION__, paths, id);
+const char *PathResolver::getFullPath (const PathDefinition *pd, path_type id) {
+	fprintf(stderr, "PathResolver::%s(%p, %d)\n", __FUNCTION__, pd, id);
 
 	if (id <= PATH_TYPE_NONE || id >= PATH_TYPE_LAST) return NULL;
-	PathDefinition *p = (PathDefinition *)(paths + (size_t)id);
+	const PathDefinition *p = static_cast<const PathDefinition *>(pd + static_cast<size_t>(id));
 	if (p == NULL) return NULL;
 	if (id != p->id) return NULL;
 	return p->full_path;
 }
 
-PathResolver::PathDefinition *PathResolver::parsePathDefinition (path_def *in) {
+const PathResolver::PathDefinition *PathResolver::parsePathDefinition (path_def *in) {
 	fprintf(stderr, "PathResolver::%s(%p)\n", __FUNCTION__, in);
 
 	size_t alloc_size = (PATH_TYPE_LAST + 1) * sizeof(PathResolver::PathDefinition);
-	PathResolver::PathDefinition *full_paths = (PathResolver::PathDefinition *)malloc(alloc_size);
+	PathResolver::PathDefinition *full_paths = static_cast<PathResolver::PathDefinition *>(malloc (alloc_size));
 	memset(full_paths, 0, alloc_size);
 	fprintf(stderr, "%s: table: %p\n", __FUNCTION__, full_paths);
-	fprintf(stderr, "%s: sizeof: %p\n", __FUNCTION__, sizeof(PathResolver::PathDefinition));
+	fprintf(stderr, "%s: sizeof: %ld\n", __FUNCTION__, sizeof(PathResolver::PathDefinition));
 
 	for(path_def *p_in = in; p_in->id != PATH_TYPE_LAST; p_in++) {
 		size_t offset = p_in->id;
@@ -214,8 +214,8 @@ PathResolver::PathDefinition *PathResolver::parsePathDefinition (path_def *in) {
 		if (p_out->full_path == NULL) p_out->full_path_len = 0;
 		else p_out->full_path_len = strlen(full_path);
 
-		fprintf(stderr, "%s: record out %d: name: %s; path: %s; parent_id: %d; mode %x; file handler: %d; filters: %d; filter object: %d\n", __FUNCTION__, p_out->id, p_out->name, p_out->full_path, p_out->parent_id, p_out->mode, p_out->data_file_handler, p_out->filters, p_out->filter_object);
+		fprintf(stderr, "%s: record out %ld: name: %s; path: %s; parent_id: %ld; mode %lx; file handler: %ld; filters: %ld; filter object: %ld\n", __FUNCTION__, p_out->id, p_out->name, p_out->full_path, p_out->parent_id, p_out->mode, p_out->data_file_handler, p_out->filters, p_out->filter_object);
 	}
-	((PathResolver::PathDefinition *)(full_paths + PATH_TYPE_LAST))->id = PATH_TYPE_LAST;
+	(static_cast<PathResolver::PathDefinition *>(full_paths + PATH_TYPE_LAST))->id = PATH_TYPE_LAST;
 	return full_paths;
 }
